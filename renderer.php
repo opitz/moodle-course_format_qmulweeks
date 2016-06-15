@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Renderer for outputting the weeks course format.
+ * Renderer for outputting the qmulweeks course format.
  *
- * @package format_weeks
+ * @package format_qmulweeks
  * @copyright 2012 Dan Poltawski
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since Moodle 2.3
@@ -26,22 +26,22 @@
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/course/format/renderer.php');
-require_once($CFG->dirroot.'/course/format/weeks/lib.php');
+require_once($CFG->dirroot.'/course/format/qmulweeks/lib.php');
 
 
 /**
- * Basic renderer for weeks format.
+ * Basic renderer for qmulweeks format.
  *
  * @copyright 2012 Dan Poltawski
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class format_weeks_renderer extends format_section_renderer_base {
+class format_qmulweeks_renderer extends format_section_renderer_base {
     /**
      * Generate the starting container html for a list of sections
      * @return string HTML to output.
      */
     protected function start_section_list() {
-        return html_writer::start_tag('ul', array('class' => 'weeks'));
+        return html_writer::start_tag('ul', array('class' => 'qmulweeks'));
     }
 
     /**

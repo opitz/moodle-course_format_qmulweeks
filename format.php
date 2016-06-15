@@ -17,7 +17,7 @@
 /**
  * Weeks course format.  Display the whole course as "weeks" made of modules.
  *
- * @package format_weeks
+ * @package format_qmulweeks
  * @copyright 2006 The Open University
  * @author N.D.Freear@open.ac.uk, and others.
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -41,7 +41,7 @@ if ($week = optional_param('week', 0, PARAM_INT)) {
 $course = course_get_format($course)->get_course();
 course_create_sections_if_missing($course, range(0, $course->numsections));
 
-$renderer = $PAGE->get_renderer('format_weeks');
+$renderer = $PAGE->get_renderer('format_qmulweeks');
 
 if (!empty($displaysection)) {
     $renderer->print_single_section_page($course, null, null, null, null, $displaysection);
@@ -49,4 +49,4 @@ if (!empty($displaysection)) {
     $renderer->print_multiple_section_page($course, null, null, null, null);
 }
 
-$PAGE->requires->js('/course/format/weeks/format.js');
+$PAGE->requires->js('/course/format/qmulweeks/format.js');

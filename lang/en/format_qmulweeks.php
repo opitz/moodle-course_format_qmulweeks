@@ -16,9 +16,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'format_weeks', language 'en', branch 'MOODLE_20_STABLE'
+ * Strings for component 'format_qmulweeks', language 'en', branch 'MOODLE_20_STABLE'
  *
- * @package   format_weeks
+ * @package   format_qmulweeks
  * @copyright 1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,9 +27,9 @@ $string['currentsection'] = 'This week';
 $string['editsection'] = 'Edit week';
 $string['deletesection'] = 'Delete week';
 $string['sectionname'] = 'Week';
-$string['pluginname'] = 'Weekly format';
+$string['pluginname'] = 'Weekly format (QMUL)';
 $string['section0name'] = 'General';
-$string['page-course-view-weeks'] = 'Any course main page in weeks format';
-$string['page-course-view-weeks-x'] = 'Any course page in weeks format';
+$string['page-course-view-qmulweeks'] = 'Any course main page in weeks format (QMUL)';
+$string['page-course-view-qmulweeks-x'] = 'Any course page in weeks format (QMUL)';
 $string['hidefromothers'] = 'Hide week';
 $string['showfromothers'] = 'Show week';

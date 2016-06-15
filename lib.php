@@ -18,7 +18,7 @@
  * This file contains main class for the course format Weeks
  *
  * @since     Moodle 2.0
- * @package   format_weeks
+ * @package   format_qmulweeks
  * @copyright 2009 Sam Hemelryk
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -29,11 +29,11 @@ require_once($CFG->dirroot. '/course/format/lib.php');
 /**
  * Main class for the Weeks course format
  *
- * @package    format_weeks
+ * @package    format_qmulweeks
  * @copyright  2012 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class format_weeks extends format_base {
+class format_qmulweeks extends format_base {
 
     /**
      * Returns true if this course format uses sections
@@ -72,7 +72,7 @@ class format_weeks extends format_base {
     public function get_default_section_name($section) {
         if ($section->section == 0) {
             // Return the general section.
-            return get_string('section0name', 'format_weeks');
+            return get_string('section0name', 'format_qmulweeks');
         } else {
             $dates = $this->get_section_dates($section);
 
@@ -327,7 +327,7 @@ class format_weeks extends format_base {
     /**
      * Updates format options for a course
      *
-     * In case if course format was changed to 'weeks', we try to copy options
+     * In case if course format was changed to 'qmulweeks', we try to copy options
      * 'coursedisplay', 'numsections' and 'hiddensections' from the previous format.
      * If previous course format did not have 'numsections' option, we populate it with the
      * current number of sections
