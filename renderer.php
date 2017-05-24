@@ -26,7 +26,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/course/format/renderer.php');
+require_once($CFG->dirroot.'/course/format/qmultc/lib.php');
 require_once($CFG->dirroot.'/course/format/qmulweeks/lib.php');
+require_once($CFG->dirroot . '/theme/qmul/classes/output/format_weeks_renderer.php');
 
 
 /**
@@ -35,29 +37,15 @@ require_once($CFG->dirroot.'/course/format/qmulweeks/lib.php');
  * @copyright 2012 Dan Poltawski
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class format_qmulweeks_renderer extends format_section_renderer_base {
-    /**
-     * Generate the starting container html for a list of sections
-     * @return string HTML to output.
-     */
-    protected function start_section_list() {
-        return html_writer::start_tag('ul', array('class' => 'qmulweeks'));
-    }
+class format_qmulweeks_renderer extends theme_qmul_format_weeks_renderer {
 
-    /**
-     * Generate the closing container html for a list of sections
-     * @return string HTML to output.
-     */
-    protected function end_section_list() {
-        return html_writer::end_tag('ul');
-    }
+    private $courseformat = null;
+    private $tcsettings;
 
-    /**
-     * Generate the title for this section page
-     * @return string the page title
-     */
-    protected function page_title() {
-        return get_string('weeklyoutline');
+    public function __construct(moodle_page $page, $target) {
+        parent::__construct($page, $target);
+        $this->courseformat = course_get_format($page->course);
+        $this->tcsettings = $this->courseformat->get_format_options();
     }
 
     /**
@@ -85,6 +73,48 @@ class format_qmulweeks_renderer extends format_section_renderer_base {
         // Copy activity clipboard..
         echo $this->course_activity_clipboard($course, 0);
 
+        if (empty($this->tcsettings)) {
+            $this->tcsettings = $this->courseformat->get_format_options();
+        }
+
+        $extratabnames = array('extratab1', 'extratab2', 'extratab3');
+        $extratabs = array();
+        if (isset($this->tcsettings['enable_assessmentinformation']) &&
+            $this->tcsettings['enable_assessmentinformation'] == 1) {
+            $tab = new stdClass();
+            $tab->name = 'assessmentinformation';
+            $tab->title = get_string('assessmentinformation', 'format_qmultc');
+            $tab->content = qmul_format_get_assessmentinformation($this->tcsettings['content_assessmentinformation']);
+            $extratabs[] = $tab;
+        }
+
+        foreach ($extratabnames as $extratabname) {
+            if (isset($this->tcsettings["enable_{$extratabname}"]) &&
+                $this->tcsettings["enable_{$extratabname}"] == 1) {
+                $tab = new stdClass();
+                $tab->name = $extratabname;
+                $tab->title = format_text($this->tcsettings["title_{$extratabname}"]);
+                $tab->content = format_text($this->tcsettings["content_{$extratabname}"]);
+                $extratabs[] = $tab;
+            }
+        }
+
+
+        // Add tab navigation
+        echo html_writer::start_tag('ul', array('class'=>'qmultabs nav nav-tabs row'));
+            echo html_writer::start_tag('li', array('class'=>'qmultabitem nav-item'));
+            echo html_writer::tag('a', get_string('modulecontent', 'format_qmultc'), array('data-toggle'=>'tab', 'class'=>'qmultablink nav-link active modulecontentlink', 'href'=>'#modulecontent'));
+            echo html_writer::end_tag('li');
+            foreach ($extratabs as $extratab) {
+                echo html_writer::start_tag('li', array('class'=>'qmultabitem nav-item'));
+                echo html_writer::tag('a', $extratab->title, array('data-toggle'=>'tab', 'class'=>"nav-link qmultablink {$extratab->name}", 'href'=>"#{$extratab->name}"));
+                echo html_writer::end_tag('li');
+            }
+        echo html_writer::end_tag('ul');
+
+
+        echo html_writer::start_tag('div', array('class'=>'qmultabcontent tab-content row bg-white'));
+        echo html_writer::start_tag('div', array('id'=>'modulecontent', 'class'=>'col-12 tab-pane qmultab modulecontent active'));
         // Now the list of sections..
         echo $this->start_section_list();
 
@@ -177,74 +207,15 @@ class format_qmulweeks_renderer extends format_section_renderer_base {
             echo $this->end_section_list();
         }
 
-    }
+        echo html_writer::end_tag('div');
 
-    /**
-     * SYNERGY LEARNING - override the 'section_header' function to add the news section.
-     * @param stdClass $section
-     * @param stdClass $course
-     * @param bool $onsectionpage
-     * @param null $sectionreturn
-     * @return string
-     * @throws coding_exception
-     */
-    protected function section_header($section, $course, $onsectionpage, $sectionreturn=null) {
-        global $PAGE;
-
-        $o = '';
-        $currenttext = '';
-        $sectionstyle = '';
-
-        if ($section->section != 0) {
-            // Only in the non-general sections.
-            if (!$section->visible) {
-                $sectionstyle = ' hidden';
-            } else if (course_get_format($course)->is_section_current($section)) {
-                $sectionstyle = ' current';
-            }
+        foreach ($extratabs as $extratab) {
+            echo html_writer::start_tag('div', array('id'=>$extratab->name, 'class'=>'tab-pane col-12 '.$extratab->name));
+            echo html_writer::tag('div', $extratab->content, array('class'=>'p-1'));
+            echo html_writer::end_tag('div');
         }
+        echo html_writer::end_tag('div');
 
-        $o.= html_writer::start_tag('li', array('id' => 'section-'.$section->section,
-                                                'class' => 'section main clearfix'.$sectionstyle, 'role'=>'region',
-                                                'aria-label'=> get_section_name($course, $section)));
-
-        // Create a span that contains the section title to be used to create the keyboard section move menu.
-        $o .= html_writer::tag('span', $this->section_title($section, $course), array('class' => 'hidden sectionname'));
-
-        $leftcontent = $this->section_left_content($section, $course, $onsectionpage);
-        $o.= html_writer::tag('div', $leftcontent, array('class' => 'left side'));
-
-        $rightcontent = $this->section_right_content($section, $course, $onsectionpage);
-        $o.= html_writer::tag('div', $rightcontent, array('class' => 'right side'));
-        $o.= html_writer::start_tag('div', array('class' => 'content'));
-
-        // When not on a section page, we display the section titles except the general section if null
-        $hasnamenotsecpg = (!$onsectionpage && ($section->section != 0 || !is_null($section->name)));
-
-        // When on a section page, we only display the general section title, if title is not the default one
-        $hasnamesecpg = ($onsectionpage && ($section->section == 0 && !is_null($section->name)));
-
-        $classes = ' accesshide';
-        if ($hasnamenotsecpg || $hasnamesecpg) {
-            $classes = '';
-        }
-        $sectionname = html_writer::tag('span', $this->section_title($section, $course));
-        $o.= $this->output->heading($sectionname, 3, 'sectionname' . $classes);
-
-        // SYNERGY LEARNING - this is the only different bit.
-        if ($section->section == 0) {
-            $o .= $this->output_news($course);
-        }
-
-        $o.= html_writer::start_tag('div', array('class' => 'summary'));
-        $o.= $this->format_summary_text($section);
-        $o.= html_writer::end_tag('div');
-
-        $context = context_course::instance($course->id);
-        $o .= $this->section_availability_message($section,
-                                                  has_capability('moodle/course:viewhiddensections', $context));
-
-        return $o;
     }
 
     /**
