@@ -94,7 +94,7 @@ class format_qmulweeks_renderer extends theme_qmul_format_weeks_renderer {
                 $tab = new stdClass();
                 $tab->name = $extratabname;
                 $tab->title = format_text($this->tcsettings["title_{$extratabname}"]);
-                $tab->content = format_text($this->tcsettings["content_{$extratabname}"]);
+                $tab->content = format_text($this->tcsettings["content_{$extratabname}"], FORMAT_HTML, array('trusted'=>true, 'noclean'=>true));
                 $extratabs[] = $tab;
             }
         }
