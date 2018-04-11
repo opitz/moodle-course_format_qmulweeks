@@ -45,7 +45,7 @@ class format_qmulweeks extends format_weeks {
      * @param bool $forsection 'true' if this is a section edit form, 'false' if this is course edit form
      * @return array array of references to the added form elements
      */
-    public function create_edit_form_elements(&$mform, $forsection = false) {
+    public function create_edit_form_elements(&$mform, $forsection = false) : array {
         global $CFG, $OUTPUT;
         $elements = parent::create_edit_form_elements($mform, $forsection);
         if ($forsection == false) {
@@ -93,7 +93,7 @@ class format_qmulweeks extends format_weeks {
         return $elements;
     }
 
-    public function edit_form_validation($data, $files, $errors) {
+    public function edit_form_validation($data, $files, $errors) : array {
 
         $return = parent::edit_form_validation($data, $files, $errors);
 
@@ -135,7 +135,7 @@ class format_qmulweeks extends format_weeks {
      *     this object contains information about the course before update
      * @return bool whether there were any changes to the options values
      */
-    public function update_course_format_options($data, $oldcourse = null) {
+    public function update_course_format_options($data, $oldcourse = null) : bool {
         global $DB;
 
         $newdata = (array) $data;
@@ -229,7 +229,7 @@ class format_qmulweeks extends format_weeks {
      *     section object or relative section number (field course_sections.section)
      * @return array
      */
-    public function get_format_options($section = null) {
+    public function get_format_options($section = null) : array {
         global $DB;
 
         $options = parent::get_format_options($section);

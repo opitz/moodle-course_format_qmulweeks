@@ -40,12 +40,12 @@ class restore_format_qmulweeks_plugin extends restore_format_plugin {
     /**
      * Returns the paths to be handled by the plugin at course level
      */
-    protected function define_course_plugin_structure() {
+    protected function define_course_plugin_structure() : array {
 
         $paths = array();
 
         // Add own format stuff
-        $elename = $this->get_namefor('');
+        $elename = $this->get_namefor();
         $elepath = $this->get_pathfor('/newssettings');
         $paths[] = new restore_path_element($elename, $elepath);
 
@@ -56,7 +56,7 @@ class restore_format_qmulweeks_plugin extends restore_format_plugin {
      * Process the 'plugin_format_qmulweeks_course' element within the 'course' element in the 'course.xml' file in the '/course' folder
      * of the zipped backup 'mbz' file.
      */
-    public function process_format_qmulweeks($data) {
+    public function process_format_qmulweeks($data) : void {
         global $DB;
 
         $data = (object)$data;
@@ -74,5 +74,5 @@ class restore_format_qmulweeks_plugin extends restore_format_plugin {
         $this->set_mapping($this->get_namefor('newssettings'), $oldid, $newitemid, true);
     }
 
-    protected function after_execute_structure() { }
+    protected function after_execute_structure() : void{ }
 }

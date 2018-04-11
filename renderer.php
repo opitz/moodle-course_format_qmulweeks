@@ -39,7 +39,7 @@ require_once($CFG->dirroot . '/theme/qmul/classes/output/format_weeks_renderer.p
  */
 class format_qmulweeks_renderer extends theme_qmul_format_weeks_renderer {
 
-    private $courseformat = null;
+    private $courseformat;
     private $tcsettings;
 
     public function __construct(moodle_page $page, $target) {
@@ -58,7 +58,7 @@ class format_qmulweeks_renderer extends theme_qmul_format_weeks_renderer {
      * @param array $modnames (argument not used)
      * @param array $modnamesused (argument not used)
      */
-    public function print_multiple_section_page($course, $sections, $mods, $modnames, $modnamesused) {
+    public function print_multiple_section_page($course, $sections, $mods, $modnames, $modnamesused): void {
         global $PAGE;
 
         $modinfo = get_fast_modinfo($course);
@@ -226,7 +226,7 @@ class format_qmulweeks_renderer extends theme_qmul_format_weeks_renderer {
      * @param object $course
      * @return string
      */
-    public function output_news($course) {
+    public function output_news($course) : string {
         global $CFG, $DB, $OUTPUT, $PAGE;
 
         $streditsummary = get_string('editsummary');

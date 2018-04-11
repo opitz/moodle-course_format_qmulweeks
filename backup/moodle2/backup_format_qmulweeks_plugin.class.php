@@ -38,7 +38,7 @@ class backup_format_qmulweeks_plugin extends backup_format_plugin {
     /**
      * Returns the format information to attach to course element
      */
-    protected function define_course_plugin_structure() {
+    protected function define_course_plugin_structure() : \backup_plugin_element{
 
         // Define the virtual plugin element with the condition to fulfill
         $plugin = $this->get_plugin_element(null, '/course/format', 'qmulweeks');
