@@ -48,6 +48,8 @@ class format_qmulweeks extends format_weeks {
     public function create_edit_form_elements(&$mform, $forsection = false) : array {
         global $CFG, $OUTPUT;
         $elements = parent::create_edit_form_elements($mform, $forsection);
+        $elements = array_values($elements);
+
         if ($forsection == false) {
 
             // Assessment Information
