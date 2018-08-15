@@ -33,3 +33,4 @@ $string['page-course-view-qmulweeks'] = 'Any course main page in weeks format (Q
 $string['page-course-view-qmulweeks-x'] = 'Any course page in weeks format (QMUL)';
 $string['hidefromothers'] = 'Hide week';
 $string['showfromothers'] = 'Show week';
+$string['addsections'] = 'Add Weeks';
