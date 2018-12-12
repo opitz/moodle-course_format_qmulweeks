@@ -301,7 +301,7 @@ class format_qmulweeks extends format_weeks {
                     'default' => 1,
                     'type' => PARAM_BOOL,
                 ),
-                // format options for the tab-ability even if not used much here - but it will preserve settings
+                // format options for the tab-ability
                 'section0_ontop' => array(
                     'default' => false,
                     'type' => PARAM_BOOL,
@@ -310,9 +310,8 @@ class format_qmulweeks extends format_weeks {
                 ),
 
                 'single_section_tabs' => array(
-                    'default' => 0,
+                    'default' => '0',
                     'type' => PARAM_BOOL,
-                    'element_type' => 'hidden',
                 ),
 /*
                 'assessment_info_block_tab' => array(
@@ -377,14 +376,13 @@ class format_qmulweeks extends format_weeks {
                     'help_component' => 'format_weeks',
                     'element_type' => 'advcheckbox',
                 ),
-/*
-                'assessment_info_block_tab' => array(
-                    'label' => get_string('assessment_info_block_tab_label', 'format_qmulweeks'),
+
+                'single_section_tabs' => array(
+                    'label' => get_string('single_section_tabs_label', 'format_qmulweeks'),
                     'element_type' => 'advcheckbox',
-                    'help' => 'assessment_info_block_tab',
-                    'help_component' => 'format_qmultc',
+                    'help' => 'single_section_tabs',
+                    'help_component' => 'format_qmulweeks',
                 ),
-*/
                 'assessment_info_block_tab' => array(
                     'label' => get_string('assessment_info_block_tab_label', 'format_qmulweeks'),
                     'help' => 'assessment_info_block_tab',

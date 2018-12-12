@@ -543,7 +543,7 @@ class format_qmulweeks_renderer extends theme_qmul_format_weeks_renderer {
      * @param object $course
      * @return string
      */
-    public function output_news($course) : string {
+    public function output_newsXXX($course) : string {
         global $CFG, $DB, $OUTPUT, $PAGE;
 
         $streditsummary = get_string('editsummary');
