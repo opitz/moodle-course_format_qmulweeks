@@ -307,7 +307,7 @@ class format_qmulweeks_renderer extends theme_qmul_format_weeks_renderer {
             if ($section == 0) {
                 // 0-section is displayed a little different then the others
                 echo html_writer::start_tag('div', array('id' => 'inline_area'));
-                if ($thissection->summary or !empty($modinfo->sections[0]) or $PAGE->user_is_editing() && $format_options['section0_ontop'] != true) {
+                if (!$format_options['section0_ontop'] and ($thissection->summary or !empty($modinfo->sections[0]) or $PAGE->user_is_editing() && $format_options['section0_ontop'] != true)) {
                     echo $this->section_header($thissection, $course, false, 0);
 
                     // SYNERGY LEARNING - add 'topiczero' block region.
