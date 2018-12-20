@@ -86,12 +86,14 @@ class format_qmulweeks_renderer extends theme_qmul_format_weeks_renderer {
 
         // preparing the tabs
         $count_tabs = 0;
+        $tab_sections = '';
+        $tab_section_nums = '';
         for ($i = 0; $i <= $max_tabs; $i++) {
-            $tab_sections = str_replace(' ', '', $format_options['tab' . $i]);
-            $tab_section_nums = str_replace(' ', '', $format_options['tab' . $i. '_sectionnums']);
 
             // check section IDs and section numbers for tabs other than tab0
             if($i > 0) {
+                $tab_sections = str_replace(' ', '', $format_options['tab' . $i]);
+                $tab_section_nums = str_replace(' ', '', $format_options['tab' . $i. '_sectionnums']);
                 $section_ids = explode(',', $tab_sections);
                 $section_nums = explode(',', $tab_section_nums);
 
@@ -101,7 +103,11 @@ class format_qmulweeks_renderer extends theme_qmul_format_weeks_renderer {
                 $new_section_nums = array();
                 foreach($section_ids as $index => $section_id) {
                     $section = $sections[$section_id];
-                    $new_section_nums[] = $section->section;
+                    if(isset($section)) {
+                        $new_section_nums[] = $section->section;
+                    } else {
+                        $new_section_nums[] = '';
+                    }
                     if($section_id && !($section)) {
                         $section = $DB->get_record('course_sections', array('course' => $course->id, 'section' => $section_nums[$index]));
                         $tab_sections = str_replace($section_id, $section->id, $tab_sections);
