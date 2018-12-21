@@ -69,6 +69,7 @@ class format_qmulweeks_renderer extends theme_qmul_format_weeks_renderer {
         $tabs = array();
         $modinfo = get_fast_modinfo($course);
         $course = course_get_format($course)->get_course();
+        $sections = $DB->get_records('course_sections', array('course' => $course->id));
         $format_options = $this->courseformat->get_format_options();
 
         $context = context_course::instance($course->id);
@@ -102,11 +103,8 @@ class format_qmulweeks_renderer extends theme_qmul_format_weeks_renderer {
                 $ids_have_changed = false;
                 $new_section_nums = array();
                 foreach($section_ids as $index => $section_id) {
-                    $section = $sections[$section_id];
-                    if(isset($section)) {
+                    if($section = $sections[$section_id]) {
                         $new_section_nums[] = $section->section;
-                    } else {
-                        $new_section_nums[] = '';
                     }
                     if($section_id && !($section)) {
                         $section = $DB->get_record('course_sections', array('course' => $course->id, 'section' => $section_nums[$index]));
@@ -169,7 +167,7 @@ class format_qmulweeks_renderer extends theme_qmul_format_weeks_renderer {
             // Get the synergy assessment info and store the result as content for this tab
             $tab->content = ''; // not required - we are only interested in the tab
             $tab->sections = "block_assessment_information";
-            $tab_section_nums = "";
+            $tab->section_nums = "";
             $tabs[$tab->id] = $tab;
             // in case the assment info tab is not present but should be in the tab sequence when used fix this
             if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
