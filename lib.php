@@ -193,6 +193,10 @@ class format_qmulweeks extends format_weeks {
                     ), '', 'name,id,value');
 
         foreach ($savedata as $key => $value) {
+            // from 3.6 on HTML editor will return an array - if so just get the txt to store
+            if(gettype($value) == 'array' && isset($value['text'])){
+                $value = $value['text'];
+            }
              if (isset($records[$key])) {
                 if (array_key_exists($key, $newdata) && $records[$key]->value !== $newdata[$key]) {
                     $DB->set_field('course_format_options', 'value',
@@ -204,7 +208,7 @@ class format_qmulweeks extends format_weeks {
                     $changed = true;
                 }
             } else {
-                $DB->insert_record('course_format_options', array(
+                $DB->insert_record('course_format_options', (object) array(
                     'courseid' => $this->courseid,
                     'format' => $this->format,
                     'sectionid' => 0,
