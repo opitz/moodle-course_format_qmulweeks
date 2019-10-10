@@ -19,13 +19,13 @@
  *
  * @since     Moodle 2.0
  * @package   format_qmulweeks
- * @copyright 2009 Sam Hemelryk
+ * @copyright 2019 Matthias Opitz
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot. '/course/format/lib.php');
-require_once($CFG->dirroot. '/course/format/weeks/lib.php');
+require_once($CFG->dirroot. '/course/format/weeks2/lib.php');
 
 /**
  * Main class for the Weeks course format
@@ -34,7 +34,7 @@ require_once($CFG->dirroot. '/course/format/weeks/lib.php');
  * @copyright  2012 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class format_qmulweeks extends format_weeks {
+class format_qmulweeks extends format_weeks2 {
 
     /**
      * Adds format options elements to the course/section edit form
@@ -51,47 +51,33 @@ class format_qmulweeks extends format_weeks {
         $elements = array_values($elements);
 
         if ($forsection == false) {
-
             // Assessment Information
             $elements[] = $mform->addElement('header', 'assessmentinformation', get_string('assessmentinformation', 'format_qmultc'));
             $mform->addHelpButton('assessmentinformation', 'assessmentinformation', 'format_qmultc', '', true);
-
             $elements[] = $mform->addElement('checkbox', 'enable_assessmentinformation', get_string('enabletab', 'format_qmultc'));
-
             $elements[] = $mform->addElement('htmleditor', 'content_assessmentinformation', get_string('assessmentinformation', 'format_qmultc'));
 
             // Extra Tab 1
             $elements[] = $mform->addElement('header', 'extratab1', get_string('extratab', 'format_qmultc', 1));
             $mform->addHelpButton('extratab1', 'extratab', 'format_qmultc', '', true);
-
             $elements[] = $mform->addElement('checkbox', 'enable_extratab1', get_string('enabletab', 'format_qmultc'));
-
             $elements[] = $mform->addElement('text', 'title_extratab1', get_string('tabtitle', 'format_qmultc'));
-
             $elements[] = $mform->addElement('htmleditor', 'content_extratab1', get_string('tabcontent', 'format_qmultc'));
 
             // Extra Tab 2
             $elements[] = $mform->addElement('header', 'extratab2', get_string('extratab', 'format_qmultc', 2));
             $mform->addHelpButton('extratab2', 'extratab', 'format_qmultc', '', true);
-
             $elements[] = $mform->addElement('checkbox', 'enable_extratab2', get_string('enabletab', 'format_qmultc'));
-
             $elements[] = $mform->addElement('text', 'title_extratab2', get_string('tabtitle', 'format_qmultc'));
-
             $elements[] = $mform->addElement('htmleditor', 'content_extratab2', get_string('tabcontent', 'format_qmultc'));
 
             // Extra Tab 3
             $elements[] = $mform->addElement('header', 'extratab3', get_string('extratab', 'format_qmultc', 3));
             $mform->addHelpButton('extratab3', 'extratab', 'format_qmultc', '', true);
-
             $elements[] = $mform->addElement('checkbox', 'enable_extratab3', get_string('enabletab', 'format_qmultc'));
-
             $elements[] = $mform->addElement('text', 'title_extratab3', get_string('tabtitle', 'format_qmultc'));
-
             $elements[] = $mform->addElement('htmleditor', 'content_extratab3', get_string('tabcontent', 'format_qmultc'));
-
         }
-
         return $elements;
     }
 
@@ -306,7 +292,7 @@ class format_qmulweeks extends format_weeks {
                     'type' => PARAM_BOOL,
                 ),
                 // format options for the tab-ability
-                'section0_ontop' => array(
+                'section0_ontop0' => array(
                     'default' => false,
                     'type' => PARAM_BOOL,
                     'label' => '',
@@ -350,6 +336,23 @@ class format_qmulweeks extends format_weeks {
         }
         if ($foreditform && !isset($courseformatoptions['coursedisplay']['label'])) {
             $courseformatoptionsedit = array(
+                'maxtabs' => array(
+                    'label' => get_string('maxtabs_label', 'format_weeks2'),
+                    'help' => 'maxtabs',
+                    'help_component' => 'format_weeks2',
+                    'default' => (isset($CFG->max_tabs) ? $CFG->max_tabs : 5),
+                    'type' => PARAM_INT,
+//                    'element_type' => 'hidden',
+                ),
+                'limittabname' => array(
+                    'label' => get_string('limittabname_label', 'format_weeks2'),
+                    'help' => 'limittabname',
+                    'help_component' => 'format_weeks2',
+                    'default' => 0,
+                    'type' => PARAM_INT,
+//                    'element_type' => 'hidden',
+                ),
+
                 'hiddensections' => array(
                     'label' => new lang_string('hiddensections'),
                     'help' => 'hiddensections',
@@ -368,6 +371,7 @@ class format_qmulweeks extends format_weeks {
                     'element_attributes' => array(
                         array(
                             COURSE_DISPLAY_SINGLEPAGE => new lang_string('coursedisplay_single'),
+                            COURSE_DISPLAY_COLLAPSE => get_string('coursedisplay_collapse', 'format_qmulweeks'),
                             COURSE_DISPLAY_MULTIPAGE => new lang_string('coursedisplay_multi')
                         )
                     ),
@@ -381,6 +385,14 @@ class format_qmulweeks extends format_weeks {
                     'element_type' => 'advcheckbox',
                 ),
 
+                'section0_ontop' => array(
+                    'label' => get_string('section0_label', 'format_weeks2'),
+                    'element_type' => 'advcheckbox',
+                    'default' => 0,
+                    'help' => 'section0',
+                    'help_component' => 'format_weeks2',
+                    'element_type' => 'hidden',
+                ),
                 'single_section_tabs' => array(
                     'label' => get_string('single_section_tabs_label', 'format_qmulweeks'),
                     'element_type' => 'advcheckbox',
