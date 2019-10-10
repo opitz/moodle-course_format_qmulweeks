@@ -108,3 +108,5 @@ $string['hidden_tab_hint'] = 'This tab contains only hidden sections and will no
 // News strings
 $string['readfullpost'] = 'Read full post';
 $string['morenews'] = 'More news';
+
+$string['coursedisplay_collapse'] = 'Show collapsible sections on one page';
