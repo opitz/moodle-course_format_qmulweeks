@@ -3,6 +3,43 @@ define(['jquery', 'jqueryui'], function($) {
     return {
         init: function() {
 // ---------------------------------------------------------------------------------------------------------------------
+            function insertTabIndex(element) {
+                // Inserts the tabindex from any active tab to its visible sections to make sure they will follow
+                // directly after the tab when navigating using the TAB key
+                var tabtabindex = element.attr('tabindex');
+                if (tabtabindex > 0) {
+                    $('.section.main:visible').each( function() {
+                        $(this).attr('tabindex',tabtabindex);
+                    });
+                }
+            }
+
+// ---------------------------------------------------------------------------------------------------------------------
+            function tabnav() {
+                // Supporting navigation using the keyboard
+                $(document).keyup(function(e) {
+                    var code = e.keyCode || e.which;
+                    var focused = $(':focus');
+                    // When using the TAB key to navigate the page actually click a tab when in focus to reveal its sections
+//                    if (code == '9') { // TAB key pressed
+//                        if ( typeof focused.attr('id') !== 'undefined' && focused.attr('id').indexOf("tab") > -1) {
+//                            focused.click();
+//                        }
+//                    }
+                    if (code == 13) { // ENTER key pressed
+                        // Click a focused tab by pressing ENTER
+                        if ( typeof focused.attr('id') !== 'undefined' && focused.attr('id').indexOf("tab") > -1) {
+                            focused.click();
+                        }
+                        // Toggle a focused section by pressing ENTER
+                        if ( typeof focused.attr('id') !== 'undefined' && focused.attr('id').indexOf("section") > -1) {
+                            focused.find('.toggler:visible').click();
+                        }
+                    }
+                });
+            }
+
+// ---------------------------------------------------------------------------------------------------------------------
             // When a single section is shown under a tab use the section name as tab name
             var changeTab = function(tab, target) {
                 console.log('single section in tab: using section name as tab name');
@@ -241,6 +278,8 @@ define(['jquery', 'jqueryui'], function($) {
                         restore_tab($(this));
                     }
                 }
+                // this will make sure tab navigation goes from tab to its sections and then on to the next tab
+                insertTabIndex($(this));
             });};
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -417,6 +456,7 @@ define(['jquery', 'jqueryui'], function($) {
                 moveOntop();
                 moveInline();
                 dropdownToggle();
+                tabnav();
             };
 
 // ---------------------------------------------------------------------------------------------------------------------
