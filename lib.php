@@ -474,7 +474,7 @@ class format_qmulweeks extends format_weeks2 {
 
         // For show/hide actions call the parent method and return the new content for .section_availability element.
         $rv = parent::section_action($section, $action, $sr);
-        $renderer = $PAGE->get_renderer('format_tabtopics');
+        $renderer = $PAGE->get_renderer('format_qmulweeks');
         $rv['section_availability'] = $renderer->section_availability($this->get_section($section));
         return $rv;
     }
