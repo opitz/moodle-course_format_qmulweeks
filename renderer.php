@@ -100,7 +100,8 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
         $tabs = array_merge($tabs,$this->prepare_extratabs($course, $format_options));
 
         // Merge tab(s) for assessment information (old and new)
-        $tabs = array_merge($tabs, $this->prepare_assessment_tabs($course, $format_options));
+//        $tabs = array_merge($tabs, $this->prepare_assessment_tabs($course, $format_options));
+        $tabs = array_merge($tabs, $this->prepare_assessment_tab($course, $format_options));
 
         $this->tabs = $tabs;
         return $tabs;
@@ -128,6 +129,61 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
     }
 
     // Prepare the assessment Information tabs (old and new)
+    // Prepare the assessment Information tabs (old and new)
+    public function prepare_assessment_tab($course, $format_options) {
+        global $CFG, $DB, $PAGE;
+
+        $tabs = array();
+        $show_ai_tab = false;
+
+        // get the installed blocks and check if the assessment info block is one of them
+        $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$course->id;
+        $installed_blocks = $DB->get_records_sql($sql, array());
+        $assessment_info_block_id = false;
+        foreach($installed_blocks as $installed_block) {
+            if($installed_block->blockname == 'assessment_information') {
+                $assessment_info_block_id = (int)$installed_block->id;
+                break;
+            }
+        }
+
+        if ($assessment_info_block_id) { // The AI block is installed ...
+            if ($PAGE->user_is_editing() // ... but the format option has not been set yet - so let's do it
+                && isset($this->tcsettings['enable_assessmentinformation'])
+                && $this->tcsettings['enable_assessmentinformation'] == 0) {
+                // set the format_option accordingly
+                $fo_record = $DB->get_record('course_format_options', array('name' => 'enable_assessmentinformation', 'courseid' => $course->id));
+                $fo_record->value = 1;
+                $DB->update_record('course_format_options', $fo_record);
+            }
+            $show_ai_tab = true;
+        } else if (isset($this->tcsettings['enable_assessmentinformation'])
+            && $this->tcsettings['enable_assessmentinformation'] == 1) {
+            // Add the AI block if necessary
+            if($this->add_assessment_information_block($course)) {
+                $show_ai_tab = true;
+            }
+        }
+
+        if ($show_ai_tab) {
+            // now do the tab
+            $tab = (object) new stdClass();
+            $tab->id = "tab_assessment_info_block";
+            $tab->name = 'assessment_info_block';
+            $tab->title = $this->tcsettings['tab_assessment_info_block_title'];
+            $tab->generic_title = get_string('tab_assessment_info_title', 'format_qmultopics');
+//            $tab->content = $this->tcsettings['content_assessmentinformation']; // not required - we are only interested in the tab ***BAUSTELLE***
+            $tab->content = ''; // not required - we are only interested in the tab
+            $tab->sections = "block_assessment_information";
+            $tab->section_nums = "";
+            $tabs[$tab->id] = $tab;
+            // in case the assessment info tab is not present but should be in the tab sequence when used fix this
+            if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
+                $this->tcsettings['tab_seq'] .= ','.$tab->id;
+            }
+        }
+        return $tabs;
+    }
     public function prepare_assessment_tabs($course, $format_options) {
         global $CFG, $DB, $PAGE;
 
@@ -184,6 +240,28 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
         }
 
         return $tabs;
+    }
+
+    // check and add the assessment information
+    public function add_assessment_information_block($course) {
+        global $DB;
+        // get block context for the course
+        $context = $DB->get_record('context', array('instanceid' => $course->id, 'contextlevel' => '50'));
+
+        // install the Assessment Information block
+        $ai_record = new stdClass();
+        $ai_record->blockname = 'assessment_information';
+        $ai_record->parentcontextid = $context->id;
+        $ai_record->showinsubcontexts = 0;
+        $ai_record->requiredbytheme = 0;
+        $ai_record->pagetypepattern = 'course-view-*';
+        $ai_record->defaultregion = 'side-pre';
+        $ai_record->defaultweight = -5;
+        $ai_record->configdata = '';
+        $ai_record->timecreated = time();
+        $ai_record->timemodified = time();
+
+        return $DB->insert_record('block_instances', $ai_record);
     }
 
     // Get the content for the assessment information section
@@ -484,6 +562,13 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
 
     // Render section for assessment information
     public function render_assessment_section($format_options) {
+        $o = '';
+        $content = html_writer::div($format_options['content_assessmentinformation']);
+        $o .= html_writer::tag('div', $content, array('id' => 'assessment_information_area', 'style' => 'display: none;'));
+        return $o;
+    }
+
+    public function render_assessment_section0($format_options) {
         $o = '';
         if ($format_options['enable_assessmentinformation']) {
             // If the option to merge assessment information add a specific class as indicator for JS

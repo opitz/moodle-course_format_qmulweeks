@@ -267,7 +267,8 @@ define(['jquery', 'jqueryui'], function($) {
                 console.log('=====> Clicked tab "' + clickedTabName + '":');
 
                 // Hide the content of the assessment info block tab
-                $('.assessment_info_block_content').hide();
+//                $('.assessment_info_block_content').hide();
+                $('#assessment_information_area').hide();
 
                 $(".tablink.active").removeClass("active");
                 $(".modulecontent").addClass("active");
@@ -297,7 +298,8 @@ define(['jquery', 'jqueryui'], function($) {
                     $('#content_assessmentinformation_area').show();
                     if ($('.merge_assessment_info').length > 0) {
 //                        console.log('merging Assessment Info Block');
-                        $('.assessment_info_block_content').show();
+//                        $('.assessment_info_block_content').show();
+                        $('#assessment_information_area').show();
                     }
                 } else if (tabid === 'tab_assessment_info_block') { // Show the Assessment Info Block on the main stage
 //                    console.log('Assessment Info Block tab clicked!');
@@ -306,8 +308,8 @@ define(['jquery', 'jqueryui'], function($) {
                     $("li.section.hidden").addClass("hiding");
                     $("li.section.hiding").removeClass("hidden");
 
-                    $('.assessment_info_block_content').show();
-//                    $('#content_assessmentinformation_area').show();
+//                    $('.assessment_info_block_content').show();
+                    $('#assessment_information_area').show();
                 } else { // Hide all sections - then show those found in sectionArray
                     $("#changenumsections").show();
                     $("li.section").hide();
@@ -739,7 +741,8 @@ define(['jquery', 'jqueryui'], function($) {
             // Show all sections when the "Module Content" tab is clicked
             $(".modulecontentlink").click(function() {
                 // hide the content of the assessment info block tab
-                $('.assessment_info_block_content').hide();
+//                $('.assessment_info_block_content').hide();
+                $('#assessment_information_area').hide();
                 $("li.section").show();
                 $("li.section.hiding").addClass("hidden");
                 $("li.section.hidden").removeClass("hiding");
@@ -805,8 +808,19 @@ define(['jquery', 'jqueryui'], function($) {
                     sessionStorage.removeItem('tabid');
                 }
 
+                // Move the Assessment Information block when active
+/*
+                if ( $('.block_assessment_information').length > 0) {
+                    // move the block into it's area in the main region
+                    $('#assessment_information_area').append($('.block_assessment_information'));
+                    // If the AI block is the only one remove the 'has-blocks' class from the main region
+                    if ( $('.block').length === $('.block_assessment_information').length) {
+                        $('#region-main').removeClass('has-blocks');
+                    }
+                }
+*/
                 // Move the Assessment Info Block into it's area on the main stage but hide it for now
-                if ($('#tab_assessment_info_block').length > 0 || $('.merge_assessment_info').length > 0) {
+                if ($('#tab_assessment_info_block').length > 0) {
                     console.log('===> Assessment Info Block tab present - showing the content_assessmentinformation_area');
                     $('#content_assessmentinformation_area').hide(); // Hide the new Assessment Info area initially
                     $( "[sections=block_assessment_information]").parent().show();
@@ -819,6 +833,8 @@ define(['jquery', 'jqueryui'], function($) {
                         $('.assessment_info_block_content').find('.card-header').removeClass('d-flex').hide();
                     }
                 }
+
+
                 $('#tab0').click();
                 $('.tablink').click();
 
