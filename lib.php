@@ -341,7 +341,6 @@ class format_qmulweeks extends format_weeks2 {
                 'assessment_info_block_tab' => array(
                     'default' => get_config('format_qmulweeks', 'defaultshowassessmentinfotab'),
                     'type' => PARAM_INT,
-                    'element_type' => 'hidden',
                 ),
             );
 
