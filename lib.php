@@ -432,8 +432,8 @@ class format_qmulweeks extends format_weeks2 {
                     'label' => get_string('assessment_info_block_tab_label', 'format_qmulweeks'),
                     'help' => 'assessment_info_block_tab',
                     'help_component' => 'format_qmulweeks',
-                    'element_type' => 'select',
-//                    'element_type' => 'hidden',
+//                    'element_type' => 'select',
+                    'element_type' => 'hidden',
                     'element_attributes' => array(
                         array(0 => get_string('assessment_info_block_tab_option0', 'format_qmulweeks'),
                             1 => get_string('assessment_info_block_tab_option1', 'format_qmulweeks'),
