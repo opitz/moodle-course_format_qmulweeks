@@ -100,8 +100,8 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
         $tabs = array_merge($tabs,$this->prepare_extratabs($course, $format_options));
 
         // Merge tab(s) for assessment information (old and new)
-//        $tabs = array_merge($tabs, $this->prepare_assessment_tabs($course, $format_options));
-        $tabs = array_merge($tabs, $this->prepare_assessment_tab($course, $format_options));
+        $tabs = array_merge($tabs, $this->prepare_assessment_tabs($course, $format_options));
+//        $tabs = array_merge($tabs, $this->prepare_assessment_tab($course, $format_options));
 
         $this->tabs = $tabs;
         return $tabs;
@@ -128,7 +128,6 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
         return $extratabs;
     }
 
-    // Prepare the assessment Information tabs (old and new)
     // Prepare the assessment Information tabs (old and new)
     public function prepare_assessment_tab($course, $format_options) {
         global $CFG, $DB, $PAGE;
@@ -184,7 +183,9 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
         }
         return $tabs;
     }
-    public function prepare_assessment_tabs($course, $format_options) {
+
+    // check and add the assessment information
+    public function prepare_assessment_tabs0($course, $format_options) {
         global $CFG, $DB, $PAGE;
 
         $tabs = array();
@@ -241,8 +242,61 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
 
         return $tabs;
     }
+    public function prepare_assessment_tabs($course, $format_options) {
+        global $CFG, $DB, $PAGE;
 
-    // check and add the assessment information
+        $tabs = array();
+
+        // get the installed blocks and check if the assessment info block is one of them
+        $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$course->id;
+        $installed_blocks = $DB->get_records_sql($sql, array());
+        $assessment_info_block_id = false;
+        foreach($installed_blocks as $installed_block) {
+            if($installed_block->blockname == 'assessment_information') {
+                $assessment_info_block_id = (int)$installed_block->id;
+                break;
+            }
+        }
+        // the assessment info block tab
+        if ($assessment_info_block_id) {
+            $tab = (object) new stdClass();
+            $tab->id = "tab_assessment_info_block";
+            $tab->name = 'assessment_info_block';
+            $tab->title = $this->tcsettings['tab_assessment_info_block_title'];
+            $tab->generic_title = get_string('tab_assessment_info_title', 'format_qmulweeks');
+            $tab->content = ''; // not required - we are only interested in the tab
+            $tab->sections = "block_assessment_information";
+            $tab->section_nums = "";
+            $tabs[$tab->id] = $tab;
+            // in case the assment info tab is not present but should be in the tab sequence when used fix this
+            if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
+                $this->tcsettings['tab_seq'] .= ','.$tab->id;
+//                $format_options['tab_seq'] .= ','.$tab->id;
+            }
+        }
+
+        // the old assessment info tab - as a new tab
+        if (isset($this->tcsettings['enable_assessmentinformation']) &&
+            $this->tcsettings['enable_assessmentinformation'] == 1) {
+            $tab = (object) new stdClass();
+            $tab->id = "tab_assessment_information";
+            $tab->name = 'assessment_info';
+            $tab->title = $this->tcsettings['tab_assessment_information_title'];
+            $tab->generic_title = get_string('tab_assessment_information_title', 'format_qmulweeks');
+            // Get the synergy assessment info and store the result as content for this tab
+            $tab->content = $this->get_assessmentinformation($this->tcsettings['content_assessmentinformation']);
+            $tab->sections = "assessment_information";
+            $tab->section_nums = "";
+            $tabs[$tab->id] = $tab;
+            // in case the assment info tab is not present but should be in the tab sequence when used fix this
+            if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
+                $this->tcsettings['tab_seq'] .= ','.$tab->id;
+//                $format_options['tab_seq'] .= ','.$tab->id;
+            }
+        }
+
+        return $tabs;
+    }
     public function add_assessment_information_block($course) {
         global $DB;
         // get block context for the course
@@ -561,14 +615,14 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
     }
 
     // Render section for assessment information
-    public function render_assessment_section($format_options) {
+    public function render_assessment_section1($format_options) {
         $o = '';
         $content = html_writer::div($format_options['content_assessmentinformation']);
         $o .= html_writer::tag('div', $content, array('id' => 'assessment_information_area', 'style' => 'display: none;'));
         return $o;
     }
 
-    public function render_assessment_section0($format_options) {
+    public function render_assessment_section($format_options) {
         $o = '';
         if ($format_options['enable_assessmentinformation']) {
             // If the option to merge assessment information add a specific class as indicator for JS
@@ -584,6 +638,11 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
             $o .= html_writer::end_tag('div');
             $o .= html_writer::end_tag('div');
         }
+
+//        $content = html_writer::div($format_options['content_assessmentinformation']);
+        $content = '';
+        $o .= html_writer::tag('div', $content, array('id' => 'assessment_information_area', 'style' => 'display: none;'));
+
         return $o;
     }
 

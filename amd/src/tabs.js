@@ -266,8 +266,8 @@ define(['jquery', 'jqueryui'], function($) {
                 }
                 console.log('=====> Clicked tab "' + clickedTabName + '":');
 
-                // Hide the content of the assessment info block tab
-//                $('.assessment_info_block_content').hide();
+                // Hide the content of the assessment info block tabs
+                $('#content_assessmentinformation_area').hide();
                 $('#assessment_information_area').hide();
 
                 $(".tablink.active").removeClass("active");
@@ -288,6 +288,17 @@ define(['jquery', 'jqueryui'], function($) {
                             });
                         }
                     });
+                } else if (tabid === 'tab_assessment_information') { // Show the Assessment Information as new tab
+//                    console.log('Assessment Info tab clicked!');
+                    $("li.section").hide();
+                    $("li.section.hidden").addClass("hiding");
+                    $("li.section.hiding").removeClass("hidden");
+
+                    $('#content_assessmentinformation_area').show();
+                    if ($('.merge_assessment_info').length > 0) {
+//                        console.log('merging Assessment Info Block');
+                        $('#assessment_information_area').show();
+                    }
                 } else if (tabid === 'tab_assessment_info_block') { // Show the Assessment Info Block on the main stage
 //                    console.log('Assessment Info Block tab clicked!');
                     // Here comes a bit of hacking in course of replacing the old Assessment Information with the new one
@@ -295,9 +306,9 @@ define(['jquery', 'jqueryui'], function($) {
                     // If the new Assessment Information block has just been installed to replace the deprecated Synergy variant
                     // the tab is rendered but the block has not been recognised yet as it was not there when
                     // the loading of this page begun - in this case we just reload the page again
-                    if ($('.block_assessment_information').length < 1) {
-                        window.location = window.location;
-                    }
+//                    if ($('.block_assessment_information').length < 1) {
+//                        window.location = window.location;
+//                    }
 
                     $("li.section").hide();
                     $("#changenumsections").hide();
