@@ -808,8 +808,9 @@ define(['jquery', 'jqueryui'], function($) {
                 // Only when the page is reloaded for the same course check for a tab cookie and delete it otherwise
                 var courseid = $('#courseid').attr('courseid');
                 var originCourseid = sessionStorage.getItem('courseid');
+                var tabid = null;
                 if(originCourseid !== null && originCourseid == courseid) {
-                    var tabid = sessionStorage.getItem('tabid');
+                    tabid = sessionStorage.getItem('tabid');
                 } else {
                     sessionStorage.removeItem('courseid');
                     sessionStorage.removeItem('tabid');
