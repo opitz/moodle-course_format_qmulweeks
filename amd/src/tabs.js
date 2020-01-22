@@ -826,7 +826,7 @@ define(['jquery', 'jqueryui'], function($) {
                     }
                 }
 
-                $('#tab0').click();
+                // Click all tabs once
                 $('.tablink').click();
 
                 // if there is no visible tab show/click the module content tab
@@ -836,7 +836,6 @@ define(['jquery', 'jqueryui'], function($) {
                     $(".modulecontentlink").click();
                 } else {
                     $(".modulecontentlink").hide();
-                    //click all tablinks once to potentially reveal any section names as tab names
                     if(tabid !== null && tabid != 'tab0') {
                         // if a 'numSections' cookie is set the changenumsections url has been clicked
                         // while the particular tab was active and we have returned here
