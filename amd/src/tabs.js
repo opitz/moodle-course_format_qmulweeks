@@ -827,7 +827,8 @@ define(['jquery', 'jqueryui'], function($) {
                 }
 
                 // Click all tabs once
-                $('.tablink').click();
+                $('#tab0').click();
+                $('.tablink:visible').click();
 
                 // if there is no visible tab show/click the module content tab
                 if ($(".topictab:visible").length === 0) {
