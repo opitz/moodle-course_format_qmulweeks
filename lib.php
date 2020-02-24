@@ -51,32 +51,41 @@ class format_qmulweeks extends format_weeks2 {
         $elements = array_values($elements);
 
         if ($forsection == false) {
+            $fo = $this->get_format_options();
             // Assessment Information
-            $elements[] = $mform->addElement('header', 'assessmentinformation', get_string('assessmentinformation', 'format_qmultc'));
-            $mform->addHelpButton('assessmentinformation', 'assessmentinformation', 'format_qmultc', '', true);
-            $elements[] = $mform->addElement('checkbox', 'enable_assessmentinformation', get_string('enabletab', 'format_qmultc'));
-            $elements[] = $mform->addElement('htmleditor', 'content_assessmentinformation', get_string('assessmentinformation', 'format_qmultc'));
+            if($fo['enable_assessmentinformation'] == "1") {
+                $elements[] = $mform->addElement('header', 'assessmentinformation', get_string('assessmentinformation', 'format_qmultc'));
+                $mform->addHelpButton('assessmentinformation', 'assessmentinformation', 'format_qmultc', '', true);
+                $elements[] = $mform->addElement('checkbox', 'enable_assessmentinformation', get_string('enabletab', 'format_qmultc'));
+                $elements[] = $mform->addElement('htmleditor', 'content_assessmentinformation', get_string('assessmentinformation', 'format_qmultc'));
+            }
 
             // Extra Tab 1
-            $elements[] = $mform->addElement('header', 'extratab1', get_string('extratab', 'format_qmultc', 1));
-            $mform->addHelpButton('extratab1', 'extratab', 'format_qmultc', '', true);
-            $elements[] = $mform->addElement('checkbox', 'enable_extratab1', get_string('enabletab', 'format_qmultc'));
-            $elements[] = $mform->addElement('text', 'title_extratab1', get_string('tabtitle', 'format_qmultc'));
-            $elements[] = $mform->addElement('htmleditor', 'content_extratab1', get_string('tabcontent', 'format_qmultc'));
+            if($fo['enable_extratab1'] == "1") {
+                $elements[] = $mform->addElement('header', 'extratab1', get_string('extratab', 'format_qmultc', 1));
+                $mform->addHelpButton('extratab1', 'extratab', 'format_qmultc', '', true);
+                $elements[] = $mform->addElement('checkbox', 'enable_extratab1', get_string('enabletab', 'format_qmultc'));
+                $elements[] = $mform->addElement('text', 'title_extratab1', get_string('tabtitle', 'format_qmultc'));
+                $elements[] = $mform->addElement('htmleditor', 'content_extratab1', get_string('tabcontent', 'format_qmultc'));
+            }
 
             // Extra Tab 2
-            $elements[] = $mform->addElement('header', 'extratab2', get_string('extratab', 'format_qmultc', 2));
-            $mform->addHelpButton('extratab2', 'extratab', 'format_qmultc', '', true);
-            $elements[] = $mform->addElement('checkbox', 'enable_extratab2', get_string('enabletab', 'format_qmultc'));
-            $elements[] = $mform->addElement('text', 'title_extratab2', get_string('tabtitle', 'format_qmultc'));
-            $elements[] = $mform->addElement('htmleditor', 'content_extratab2', get_string('tabcontent', 'format_qmultc'));
+            if($fo['enable_extratab2'] == "1") {
+                $elements[] = $mform->addElement('header', 'extratab2', get_string('extratab', 'format_qmultc', 2));
+                $mform->addHelpButton('extratab2', 'extratab', 'format_qmultc', '', true);
+                $elements[] = $mform->addElement('checkbox', 'enable_extratab2', get_string('enabletab', 'format_qmultc'));
+                $elements[] = $mform->addElement('text', 'title_extratab2', get_string('tabtitle', 'format_qmultc'));
+                $elements[] = $mform->addElement('htmleditor', 'content_extratab2', get_string('tabcontent', 'format_qmultc'));
+            }
 
             // Extra Tab 3
-            $elements[] = $mform->addElement('header', 'extratab3', get_string('extratab', 'format_qmultc', 3));
-            $mform->addHelpButton('extratab3', 'extratab', 'format_qmultc', '', true);
-            $elements[] = $mform->addElement('checkbox', 'enable_extratab3', get_string('enabletab', 'format_qmultc'));
-            $elements[] = $mform->addElement('text', 'title_extratab3', get_string('tabtitle', 'format_qmultc'));
-            $elements[] = $mform->addElement('htmleditor', 'content_extratab3', get_string('tabcontent', 'format_qmultc'));
+            if($fo['enable_extratab3'] == "1") {
+                $elements[] = $mform->addElement('header', 'extratab3', get_string('extratab', 'format_qmultc', 3));
+                $mform->addHelpButton('extratab3', 'extratab', 'format_qmultc', '', true);
+                $elements[] = $mform->addElement('checkbox', 'enable_extratab3', get_string('enabletab', 'format_qmultc'));
+                $elements[] = $mform->addElement('text', 'title_extratab3', get_string('tabtitle', 'format_qmultc'));
+                $elements[] = $mform->addElement('htmleditor', 'content_extratab3', get_string('tabcontent', 'format_qmultc'));
+            }
         }
         return $elements;
     }
