@@ -640,10 +640,48 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
         }
 
 //        $content = html_writer::div($format_options['content_assessmentinformation']);
+        // get any summary text from the hidden section that is automatically created by the Assessment Information tab
+        $o .= $this->render_aitext();
+
+        // render an inititially invisible assessment_information_area
         $content = '';
         $o .= html_writer::tag('div', $content, array('id' => 'assessment_information_area', 'style' => 'display: none;'));
 
         return $o;
+    }
+
+    // render any summary text from the hidden section that is automatically created by the Assessment Information tab
+    public function render_aitext() {
+        global $COURSE;
+        $o = '';
+        $airecord = $this->get_ai_section($COURSE);
+
+        $o .= html_writer::start_tag('div', array('id' => 'assessment_information_summary', 'style' => 'display: none;'));
+        $o .= html_writer::div($airecord->summary);
+        $o .= html_writer::empty_tag('br');
+        $o .= html_writer::end_div();
+        return $o;
+    }
+
+    /**
+     * get a section created by the Assessment Information block
+     * for now it is identified by hacking the sequence field of that section:
+     * if it contains the section id 666 (the number of the beast as we are doing evil here...) it is related to the AI block.
+     *
+     * @param $course
+     * @return mixed
+     * @throws dml_exception
+     */
+    protected function get_ai_section($course) {
+        global $DB;
+        $sql = "
+select * 
+from {course_sections} 
+where course = $course->id 
+and (sequence = '666' or sequence like '666,%' or sequence like '%,666,%' or sequence like '%,666')
+";
+        $result = $DB->get_records_sql($sql);
+        return reset($result); // get the 1st element of the returned array - should have one element only anyway
     }
 
     protected function start_section_list() {
