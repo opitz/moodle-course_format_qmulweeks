@@ -662,12 +662,13 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
     public function render_aitext() {
         global $COURSE;
         $o = '';
-        $airecord = $this->get_ai_section($COURSE);
+        if($airecord = $this->get_ai_section($COURSE) && isset($airecord->summary)) {
+            $o .= html_writer::start_tag('div', array('id' => 'assessment_information_summary', 'style' => 'display: none;'));
+            $o .= html_writer::div($airecord->summary);
+            $o .= html_writer::empty_tag('br');
+            $o .= html_writer::end_div();
+        }
 
-        $o .= html_writer::start_tag('div', array('id' => 'assessment_information_summary', 'style' => 'display: none;'));
-        $o .= html_writer::div($airecord->summary);
-        $o .= html_writer::empty_tag('br');
-        $o .= html_writer::end_div();
         return $o;
     }
 
