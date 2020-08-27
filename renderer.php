@@ -27,6 +27,7 @@
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/course/format/renderer.php');
 require_once($CFG->dirroot . '/course/format/qmulweeks/lib.php');
+require_once($CFG->dirroot . '/course/format/qmulweeks/classes/output/course_renderer.php');
 require_once($CFG->dirroot . '/course/format/weeks2/renderer.php');
 
 /**
@@ -41,10 +42,21 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
     private $courseformat = null;
     private $tcsettings;
 
-    public function __construct(moodle_page $page, $target) {
+    public function __construct0(moodle_page $page, $target) {
         parent::__construct($page, $target);
         $this->courseformat = course_get_format($page->course);
         $this->tcsettings = $this->courseformat->get_format_options();
+    }
+
+    public function __construct(moodle_page $page, $target)
+    {
+        global $PAGE;
+        parent::__construct($page, $target);
+        $this->courseformat = course_get_format($page->course);
+        $this->tcsettings = $this->courseformat->get_format_options();
+        //let's use our own course renderer as we want to add badges to the module output
+//        $this->courserenderer = new qmultopics_course_renderer($PAGE, null);
+        $this->courserenderer = new qmulweeks_course_renderer($page, null);
     }
 
     // Require the jQuery file for this class

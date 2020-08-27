@@ -107,3 +107,24 @@ $string['readfullpost'] = 'Read full post';
 $string['morenews'] = 'More news';
 
 $string['coursedisplay_collapse'] = 'Show collapsible sections on one page';
+
+// Badges
+$string['badge_due'] = 'Due ';
+$string['badge_wasdue'] = 'Was due ';
+$string['badge_spacer'] = '&nbsp;&nbsp;';
+$string['badge_commaspacer'] = ',&nbsp;&nbsp;';
+$string['badge_submitted'] = '  Submitted ';
+$string['badge_notsubmitted'] = 'Not submitted';
+$string['badge_answered'] = '  Answered ';
+$string['badge_notanswered'] = 'Not answered';
+$string['badge_attempted'] = '  Attempted ';
+$string['badge_notattempted'] = 'Not attempted';
+$string['badge_completed'] = '  Completed ';
+$string['badge_notcompleted'] = 'Not completed';
+$string['badge_groups'] = ' Groups';
+$string['badge_graded'] = ' Graded';
+$string['badge_ungraded'] = ' Ungraded';
+$string['badge_inprogress'] = 'In Progress ';
+$string['badge_xofy'] = ' of ';
+$string['badge_finished'] = ' Finished';
+$string['badge_feedback'] = ' - Feedback available!';
