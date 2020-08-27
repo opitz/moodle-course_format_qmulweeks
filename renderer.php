@@ -605,7 +605,7 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
         global $DB;
 
         // First we check if the course used a legacy COLLAPSE course display - and if so set the coursedisplay option correctly if needed
-        if ($format_options['coursedisplay'] == COURSE_DISPLAY_QMUL_COLLAPSE) {
+        if ($format_options['coursedisplay'] == COURSE_DISPLAY_COLLAPSE) {
             $cdrecord = $DB->get_record('course_format_options', array('courseid' => $course->id, 'name' => 'coursedisplay'));
             $cdrecord->value = COURSE_DISPLAY_SINGLEPAGE;
             $DB->update_record('course_format_options', $cdrecord);
