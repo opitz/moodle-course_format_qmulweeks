@@ -50,13 +50,126 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
 
     public function __construct(moodle_page $page, $target)
     {
-        global $PAGE;
+        global $COURSE;
+
         parent::__construct($page, $target);
         $this->courseformat = course_get_format($page->course);
         $this->tcsettings = $this->courseformat->get_format_options();
-        //let's use our own course renderer as we want to add badges to the module output
-//        $this->courserenderer = new qmultopics_course_renderer($PAGE, null);
-        $this->courserenderer = new qmulweeks_course_renderer($page, null);
+        // let's use our own course renderer as we want to add badges to the module output
+        $usethemebadges = get_config('format_qmulweeks', 'usethemebadges');
+        if($usethemebadges != 1) {
+            $this->courserenderer = new qmulweeks_course_renderer($page, null);
+            // create COURSE objects that contain data about modules and groups used in this course
+            $COURSE->module_data = $this->get_module_data();
+            $COURSE->group_assign_data = $this->get_group_assign_data();
+        }
+    }
+
+    /**
+     * Get submission and grading data for modules in this course
+     *
+     * @return array
+     * @throws dml_exception
+     */
+    public function get_module_data() {
+        global $COURSE, $DB;
+        $sql = "
+select concat_ws('', cm.id,a.id, asu.id, ag.id, c.id, ca.id, f.id, fc.id, l.id,la.id,lg.id,q.id,qa.id,qg.id) as row_id
+,m.name as module_name
+#,'assign >'
+,a.id as assign_id
+,a.name as assign
+,a.duedate as assign_duedate
+,a.teamsubmission
+,a.requireallteammemberssubmit
+,asu.userid as assign_userid
+,asu.status as assign_submission_status
+,asu.timemodified as assign_submit_time
+,ag.grade as assign_grade
+,ag.timemodified as assign_grade_time
+#,'choice >'
+,c.id as choice_id
+,c.name as choice
+,c.timeopen as choice_timeopen
+,c.timeclose as choice_duedate
+,ca.userid as choice_userid
+,ca.timemodified as choice_submit_time
+#,'feedback >'
+,f.id as feedback_id
+,f.name as feedback
+,f.timeopen as feedback_timeopen
+,f.timeclose as feedback_duedate
+,fc.userid as feedback_userid
+,fc.timemodified as feedback_submit_time
+#,'lesson >'
+,l.id as lesson_id
+,l.name as lesson
+,l.deadline as lesson_duedate
+,la.userid as lesson_userid
+,la.correct
+,la.timeseen as lesson_submit_time
+,lg.grade as lesson_grade
+,lg.completed as lesson_completed
+#,'quiz >'
+,q.id as quiz_id
+,q.name as quiz_name
+,q.timeopen as quiz_timeopen
+,q.timeclose as quiz_duedate
+,qa.userid as quiz_userid
+,qa.state as quiz_state
+,qa.timestart as quiz_timestart
+,qa.timefinish as quiz_submit_time
+,qg.grade as quiz_grade
+from {course_modules} cm
+join {modules} m on m.id = cm.module
+# assign
+left join {assign} a on a.id = cm.instance and a.course = cm.course and m.name = 'assign'
+left join {assign_submission} asu on asu.assignment = a.id
+left join {assign_grades} ag on ag.assignment = asu.assignment and ag.userid = asu.userid
+# choice
+left join {choice} c on c.id = cm.instance and c.course = cm.course and m.name = 'choice'
+left join {choice_answers} ca on ca.choiceid = c.id
+# feedback
+left join {feedback} f on f.id = cm.instance and f.course = cm.course and m.name = 'feedback'
+left join {feedback_completed} fc on fc.feedback = f.id
+# lesson
+left join {lesson} l on l.id = cm.instance and l.course = cm.course and m.name = 'lesson'
+left join {lesson_attempts} la on la.lessonid = l.id
+left join {lesson_grades} lg on lg.lessonid = la.lessonid and lg.userid = la.userid
+# quiz
+left join {quiz} q on q.id = cm.instance and q.course = cm.course and m.name = 'quiz'
+left join {quiz_attempts} qa on qa.quiz = q.id
+left join {quiz_grades} qg on qg.quiz = qa.quiz and qg.userid = qa.userid
+where 1
+and cm.course = $COURSE->id
+        ";
+        return $DB->get_records_sql($sql);
+    }
+
+    /**
+     * Get group related submission and grading data for modules in this course
+     *
+     * @return array
+     * @throws dml_exception
+     */
+    public function get_group_assign_data(){
+        global $COURSE, $DB;
+        $sql = "
+SELECT 
+gm.id as ID
+,asu.assignment
+,asu.groupid
+,ag.userid
+,ag.grade
+FROM {assign_submission} asu
+join {assign} a on a.id = asu.assignment
+join {groups_members} gm on gm.groupid = asu.groupid
+left join {assign_grades} ag on (ag.assignment = asu.assignment and ag.userid = gm.userid)
+where asu.groupid > 0
+and a.course = $COURSE->id
+";
+
+        return $DB->get_records_sql($sql);
     }
 
     // Require the jQuery file for this class

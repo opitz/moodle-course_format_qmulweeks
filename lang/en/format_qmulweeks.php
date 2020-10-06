@@ -128,3 +128,29 @@ $string['badge_inprogress'] = 'In Progress ';
 $string['badge_xofy'] = ' of ';
 $string['badge_finished'] = ' Finished';
 $string['badge_feedback'] = ' - Feedback available!';
+
+
+// Badges
+$string['badge_due'] = 'Due ';
+$string['badge_duetoday'] = 'DUE TODAY ';
+$string['badge_wasdue'] = 'Was due ';
+$string['badge_spacer'] = '&nbsp;&nbsp;';
+$string['badge_commaspacer'] = ',&nbsp;&nbsp;';
+$string['badge_submitted'] = '  Submitted ';
+$string['badge_notsubmitted'] = 'Not submitted';
+$string['badge_answered'] = '  Answered ';
+$string['badge_notanswered'] = 'Not answered';
+$string['badge_attempted'] = '  Attempted ';
+$string['badge_notattempted'] = 'Not attempted';
+$string['badge_completed'] = '  Completed ';
+$string['badge_notcompleted'] = 'Not completed';
+$string['badge_groups'] = ' Groups';
+$string['badge_graded'] = ' Graded';
+$string['badge_ungraded'] = ' Ungraded';
+$string['badge_inprogress'] = 'In Progress since ';
+$string['badge_xofy'] = ' of ';
+$string['badge_finished'] = ' Finished ';
+$string['badge_feedback'] = ' - Feedback available!';
+$string['badge_submission_time_title'] = 'Submission time: ';
+$string['usethemebadges'] = 'Use assignemt badges from QMUL theme';
+$string['usethemebadges_desc'] = 'Switch to either use assigment badges provided by the course format or by the theme (in case the new format badges are affecting performance too much)';
