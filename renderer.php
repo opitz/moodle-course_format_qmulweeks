@@ -18,7 +18,7 @@
  * Renderer for outputting the qmulweeks course format.
  *
  * @package format_qmulweeks
- * @copyright 2012 Dan Poltawski
+ * @copyright 2020 Matthias Opitz / QMUL
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since Moodle 2.3
  */
@@ -41,12 +41,13 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
     private $courseformat = null;
     private $tcsettings;
 
-    public function __construct0(moodle_page $page, $target) {
-        parent::__construct($page, $target);
-        $this->courseformat = course_get_format($page->course);
-        $this->tcsettings = $this->courseformat->get_format_options();
-    }
-
+    /**
+     * format_qmulweeks_renderer constructor.
+     *
+     * @param moodle_page $page
+     * @param $target
+     * @throws dml_exception
+     */
     public function __construct(moodle_page $page, $target) {
         global $COURSE;
 
@@ -281,7 +282,9 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
         $tabs = array();
 
         // Get the installed blocks and check if the assessment info block is one of them.
-        $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$course->id;
+        $sql = "SELECT * FROM {context} cx 
+                join {block_instances} bi on bi.parentcontextid = cx.id 
+                where cx.contextlevel = 50 and cx.instanceid = ".$course->id;
         $installedblocks = $DB->get_records_sql($sql, array());
         $assessmentinfoblockid = false;
         foreach ($installedblocks as $installedblock) {
@@ -351,7 +354,7 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
         // Get block context for the course.
         $context = $DB->get_record('context', array('instanceid' => $course->id, 'contextlevel' => '50'));
 
-        // install the Assessment Information block
+        // Install the Assessment Information block.
         $airecord = new stdClass();
         $airecord->blockname = 'assessment_information';
         $airecord->parentcontextid = $context->id;
@@ -379,16 +382,16 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
     public function get_assessmentinformation($content) {
         global $CFG, $DB, $COURSE, $USER;
 
-        $output = html_writer::tag('div', format_text($content), array('class'=>'assessmentinfo col-12 mb-3'));
+        $output = html_writer::tag('div', format_text($content), array('class' => 'assessmentinfo col-12 mb-3'));
 
         $assignments = $this->get_assignments();
 
         $assignoutput = html_writer::tag('div', get_string('assignmentsdue', 'format_qmulweeks'),
-            array('class'=>'card-header h5'));
-        $assignoutput .= html_writer::start_tag('div', array('class'=>'list-group list-group-flush'));
+            array('class' => 'card-header h5'));
+        $assignoutput .= html_writer::start_tag('div', array('class' => 'list-group list-group-flush'));
         $assignsubmittedoutput = html_writer::tag('div', get_string('assignmentssubmitted',
-            'format_qmulweeks'), array('class'=>'card-header h5'));
-        $assignsubmittedoutput .= html_writer::start_tag('div', array('class'=>'list-group list-group-flush'));
+            'format_qmulweeks'), array('class' => 'card-header h5'));
+        $assignsubmittedoutput .= html_writer::start_tag('div', array('class' => 'list-group list-group-flush'));
 
         $modinfo = get_fast_modinfo($COURSE);
 
@@ -485,20 +488,20 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
 
             $duedate = date('d/m/Y', $assignment->duedate);
 
-            $out .= html_writer::start_tag('div', array('class'=>'list-group-item assignment'.$hidden));
+            $out .= html_writer::start_tag('div', array('class' => 'list-group-item assignment'.$hidden));
 
-            $out .= html_writer::start_tag('div', array('class'=>'d-flex flex-wrap align-items-center mb-2'));
-            $out .= $this->output->pix_icon('icon', 'assign', 'mod_assign', ['class'=>'mr-2']);
-            $out .= html_writer::link($url, $assignment->name, array('class'=>'name col p-0'));
+            $out .= html_writer::start_tag('div', array('class' => 'd-flex flex-wrap align-items-center mb-2'));
+            $out .= $this->output->pix_icon('icon', 'assign', 'mod_assign', ['class' => 'mr-2']);
+            $out .= html_writer::link($url, $assignment->name, array('class' => 'name col p-0'));
 
             if ($assignment->duedate > 0) {
-                $out .= html_writer::tag('div', $duedate, array('class'=>'due-date ml-auto badge badge-'.$statusclass,
-                    'data-toggle'=>'tooltip', 'data-placement'=>'top', 'title'=>$duestatus));
+                $out .= html_writer::tag('div', $duedate, array('class' => 'due-date ml-auto badge badge-'.$statusclass,
+                    'data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $duestatus));
             }
             $out .= html_writer::end_tag('div');
 
             if ($assignment->showdescription) {
-                $out .= html_writer::tag('div', format_text($assignment->intro), array('class'=>"summary pl-4"));
+                $out .= html_writer::tag('div', format_text($assignment->intro), array('class' => "summary pl-4"));
             }
             $out .= html_writer::end_tag('div');
 
@@ -512,21 +515,21 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
         }
         if ($submitted == 0) {
             $assignsubmittedoutput .= html_writer::tag('div', get_string('noassignmentssubmitted',
-                'format_qmulweeks'), array('class'=>'card-body'));
+                'format_qmulweeks'), array('class' => 'card-body'));
         }
         if ($due == 0) {
             $assignoutput .= html_writer::tag('div', get_string('noassignmentsdue',
-                'format_qmulweeks'), array('class'=>'card-body'));
+                'format_qmulweeks'), array('class' => 'card-body'));
         }
         $assignoutput .= html_writer::end_tag('div');
         $assignsubmittedoutput .= html_writer::end_tag('div');
-        $assignoutput = html_writer::tag('div', $assignoutput, array('class'=>'card'));
-        $assignsubmittedoutput = html_writer::tag('div', $assignsubmittedoutput, array('class'=>'card'));
+        $assignoutput = html_writer::tag('div', $assignoutput, array('class' => 'card'));
+        $assignsubmittedoutput = html_writer::tag('div', $assignsubmittedoutput, array('class' => 'card'));
 
-        $output .= html_writer::tag('div', $assignoutput, array('class'=>'col-12 col-md-6 mb-1'));
-        $output .= html_writer::tag('div', $assignsubmittedoutput, array('class'=>'col-12 col-md-6 mb-1'));
+        $output .= html_writer::tag('div', $assignoutput, array('class' => 'col-12 col-md-6 mb-1'));
+        $output .= html_writer::tag('div', $assignsubmittedoutput, array('class' => 'col-12 col-md-6 mb-1'));
 
-        return html_writer::tag('div', $output, array('class'=>'row'));
+        return html_writer::tag('div', $output, array('class' => 'row'));
     }
 
     /**
@@ -600,9 +603,9 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
         global $DB;
         $o = '';
         if ($tab->sections == '') {
-            $o .= html_writer::start_tag('li', array('class'=>'tabitem nav-item', 'style' => 'display:none;'));
+            $o .= html_writer::start_tag('li', array('class' => 'tabitem nav-item', 'style' => 'display:none;'));
         } else {
-            $o .= html_writer::start_tag('li', array('class'=>'tabitem nav-item'));
+            $o .= html_writer::start_tag('li', array('class' => 'tabitem nav-item'));
         }
 
         $sectionsarray = explode(',', str_replace(' ', '', $tab->sections));

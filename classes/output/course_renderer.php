@@ -28,13 +28,16 @@ class qmulweeks_course_renderer extends \core_course_renderer{
      */
     public function course_section_cm($course, &$completioninfo, cm_info $mod, $sectionreturn, $displayoptions = array()) {
         $output = '';
-        // We return empty string (because course module will not be displayed at all)
-        // if:
-        // 1) The activity is not visible to users
-        // and
-        // 2) The 'availableinfo' is empty, i.e. the activity was
-        //     hidden in a way that leaves no info, such as using the
-        //     eye icon.
+        /*
+         *
+         * We return empty string (because course module will not be displayed at all)
+         * if:
+         * 1) The activity is not visible to users
+         * and
+         * 2) The 'availableinfo' is empty, i.e. the activity was
+         *     hidden in a way that leaves no info, such as using the
+         *     eye icon.
+         */
         if (!$mod->is_visible_on_course_page()) {
             return $output;
         }
@@ -58,10 +61,10 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         // This div is used to indent the content.
         $output .= html_writer::div('', $indentclasses);
 
-        // Start a wrapper for the actual content to keep the indentation consistent
+        // Start a wrapper for the actual content to keep the indentation consistent.
         $output .= html_writer::start_tag('div');
 
-        // Display the link to the module (or do nothing if module has no url)
+        // Display the link to the module (or do nothing if module has no url).
         $cmname = $this->course_section_cm_name($mod, $displayoptions);
 
         if (!empty($cmname)) {
@@ -133,7 +136,7 @@ class qmulweeks_course_renderer extends \core_course_renderer{
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function show_badges($mod){
+    public function show_badges($mod) {
         switch($mod->modname) {
             case 'assign':
                 return $this->show_assignment_badges($mod);
@@ -167,23 +170,23 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         if ($duedate == 0) {
             return '';
         }
-        $date_format = "%d %B %Y";
-        $badge_class = '';
-        $due_text = get_string('badge_due', 'format_qmulweeks');
-        if($duedate < time()) {
-            // The due date has passed - show a red badge
-            $badge_class = ' badge-danger';
-            $due_text = get_string('badge_duetoday', 'format_qmulweeks');
-            if($duedate < (time() - 86400)) {
-                $due_text = get_string('badge_wasdue', 'format_qmulweeks');
+        $dateformat = "%d %B %Y";
+        $badgeclass = '';
+        $duetext = get_string('badge_due', 'format_qmulweeks');
+        if ($duedate < time()) {
+            // The due date has passed - show a red badge.
+            $badgeclass = ' badge-danger';
+            $duetext = get_string('badge_duetoday', 'format_qmulweeks');
+            if ($duedate < (time() - 86400)) {
+                $duetext = get_string('badge_wasdue', 'format_qmulweeks');
             }
         }
-        elseif($duedate < (time() + (60 * 60 * 24 * 14))) {
-            // Only 14 days left until the due date - show a yellow badge
-            $badge_class = ' badge-warning';
+        else if ($duedate < (time() + (60 * 60 * 24 * 14))) {
+            // Only 14 days left until the due date - show a yellow badge.
+            $badgeclass = ' badge-warning';
         }
-        $badge_content = $due_text . userdate($duedate,$date_format);
-        return $this->html_badge($badge_content, $badge_class);
+        $badge_content = $duetext . userdate($duedate,$dateformat);
+        return $this->html_badge($badge_content, $badgeclass);
     }
 
     /**
@@ -195,9 +198,9 @@ class qmulweeks_course_renderer extends \core_course_renderer{
      * @return string
      * @throws coding_exception
      */
-    public function html_badge($badge_text, $badge_class = "", $title = ""){
+    public function html_badge($badgetext, $badgeclass = "", $title = "") {
         $o = '';
-        $o .= html_writer::div($badge_text, 'badge '.$badge_class, array('title' => $title));
+        $o .= html_writer::div($badgetext, 'badge '.$badgeclass, array('title' => $title));
         $o .= get_string('badge_spacer', 'format_qmulweeks');
         return $o;
     }
@@ -210,7 +213,7 @@ class qmulweeks_course_renderer extends \core_course_renderer{
      * @return array
      * @throws dml_exception
      */
-    public function enrolled_users($capability){
+    public function enrolled_users($capability) {
         global $COURSE, $DB;
 
         switch($capability) {
@@ -256,34 +259,34 @@ class qmulweeks_course_renderer extends \core_course_renderer{
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function show_assignment_badges($mod){
+    public function show_assignment_badges($mod) {
         global $COURSE;
         $o = '';
 
         $assignment = false;
-        foreach($COURSE->module_data as $module) {
+        foreach ($COURSE->module_data as $module) {
             if ($module->assign_id == $mod->instance) {
                 $assignment = $module;
                 break;
             }
         }
 
-        if($assignment) {
+        if ($assignment) {
 
-            // Show assignment due date
+            // Show assignment due date.
             $o .= $this->show_due_date_badge($assignment->assign_duedate);
 
-            // check if the user is able to grade (e.g. is a teacher)
+            // Check if the user is able to grade (e.g. is a teacher).
             if (has_capability('mod/assign:grade', $mod->context)) {
-                // show submission numbers and ungraded submissions if any
-                // check if the assignment allows group submissions
+                // Show submission numbers and ungraded submissions if any.
+                // Check if the assignment allows group submissions.
                 if ($assignment->teamsubmission && ! $assignment->requireallteammemberssubmit) {
                     $o .= $this->show_assign_group_submissions($mod);
                 } else {
                     $o .= $this->show_assign_submissions($mod);
                 }
             } else {
-                // show date of submission
+                // Show date of submission.
                 $o .= $this->show_assign_submission($mod);
             }
         }
@@ -300,57 +303,59 @@ class qmulweeks_course_renderer extends \core_course_renderer{
      */
     public function show_assign_submissions($mod) {
         global $COURSE;
-        // Show submissions by enrolled students
+        // Show submissions by enrolled students.
         $spacer = get_string('badge_commaspacer', 'format_qmulweeks');
-        $badge_text = false;
-        $badge_class = '';
+        $badgetext = false;
+        $badgeclass = '';
         $capability = 'assign';
-        $pre_text = '';
+        $pretext = '';
         $xofy = get_string('badge_xofy', 'format_qmulweeks');
-        $post_text = get_string('badge_submitted', 'format_qmulweeks');
-        $groups_text = get_string('badge_groups', 'format_qmulweeks');
-        $ungraded_text = get_string('badge_ungraded', 'format_qmulweeks');
-        $enrolled_students = $this->enrolled_users($capability);
-        if(!empty($mod->availability)) {
+        $posttext = get_string('badge_submitted', 'format_qmulweeks');
+        $groupstext = get_string('badge_groups', 'format_qmulweeks');
+        $ungradedtext = get_string('badge_ungraded', 'format_qmulweeks');
+        $enrolledstudents = $this->enrolled_users($capability);
+        if (!empty($mod->availability)) {
 
             // Get availability information.
             $info = new \core_availability\info_module($mod);
-            $restricted_students = $info->filter_user_list($enrolled_students);
+            $restrictedstudents = $info->filter_user_list($enrolledstudents);
         } else {
-            $restricted_students = $enrolled_students;
+            $restrictedstudents = $enrolledstudents;
         }
 
-        if($enrolled_students){
+        if ($enrolledstudents) {
             $submissions = 0;
             $gradings = 0;
-            if($COURSE->module_data) foreach($COURSE->module_data as $module) {
-                if($module->module_name == 'assign' &&
-                    $module->assign_id == $mod->instance &&
-                    $module->assign_submission_status == 'submitted') {
-                    $submissions++;
-                    if($module->assign_grade > 0) {
-                        $gradings++;
+            if ($COURSE->module_data) {
+                foreach ($COURSE->module_data as $module) {
+                    if ($module->module_name == 'assign' &&
+                        $module->assign_id == $mod->instance &&
+                        $module->assign_submission_status == 'submitted') {
+                        $submissions++;
+                        if ($module->assign_grade > 0) {
+                            $gradings++;
+                        }
                     }
                 }
             }
             $ungraded = $submissions - $gradings;
-            $badge_text = $pre_text
+            $badgetext = $pretext
                 .$submissions
                 .$xofy
-                .count($restricted_students)
-                .$post_text;
+                .count($restrictedstudents)
+                .$posttext;
 
-            if($ungraded) {
-                $badge_text =
-                    $badge_text
+            if ($ungraded) {
+                $badgetext =
+                    $badgetext
                     .$spacer
                     .$ungraded
-                    .$ungraded_text;
+                    .$ungradedtext;
             }
 
 
-            if($badge_text) {
-                return $this->html_badge($badge_text, $badge_class);
+            if ($badgetext) {
+                return $this->html_badge($badgetext, $badgeclass);
             } else {
                 return '';
             }
@@ -367,52 +372,54 @@ class qmulweeks_course_renderer extends \core_course_renderer{
      */
     public function show_assign_group_submissions($mod) {
         global $COURSE;
-        // Show group submissions by enrolled students
+        // Show group submissions by enrolled students.
         $spacer = get_string('badge_commaspacer', 'format_qmulweeks');
-        $badge_class = '';
+        $badgeclass = '';
         $capability = 'assign';
-        $pre_text = '';
+        $pretext = '';
         $xofy = get_string('badge_xofy', 'format_qmulweeks');
-        $post_text = get_string('badge_submitted', 'format_qmulweeks');
-        $groups_text = get_string('badge_groups', 'format_qmulweeks');
-        $ungraded_text = get_string('badge_ungraded', 'format_qmulweeks');
-        $enrolled_students = $this->enrolled_users($capability);
-        if($enrolled_students){
-            // go through the group_data to get numbers for groups, submissions and gradings
-            $course_groups_array = [];
-            $group_submissions_array = [];
-            $group_gradings_array = [];
-            if(isset($COURSE->group_assign_data)) foreach($COURSE->group_assign_data as $record) {
-                $course_groups_array[$record->groupid] = $record->groupid;
-                if($record->grade < 0) {
-                    $group_submissions_array[$record->groupid] = true;
-                } elseif($record->grade > 0) {
-                    $group_submissions_array[$record->groupid] = true;
-                    $group_gradings_array[$record->groupid] = $record->grade;
+        $posttext = get_string('badge_submitted', 'format_qmulweeks');
+        $groupstext = get_string('badge_groups', 'format_qmulweeks');
+        $ungradedtext = get_string('badge_ungraded', 'format_qmulweeks');
+        $enrolledstudents = $this->enrolled_users($capability);
+        if ($enrolledstudents) {
+            // Go through the group_data to get numbers for groups, submissions and gradings.
+            $coursegroupsarray = [];
+            $groupsubmissionsarray = [];
+            $groupgradingsarray = [];
+            if (isset($COURSE->group_assign_data)) {
+                foreach ($COURSE->group_assign_data as $record) {
+                    $coursegroupsarray[$record->groupid] = $record->groupid;
+                    if ($record->grade < 0) {
+                        $groupsubmissionsarray[$record->groupid] = true;
+                    } else if ($record->grade > 0) {
+                        $groupsubmissionsarray[$record->groupid] = true;
+                        $groupgradingsarray[$record->groupid] = $record->grade;
+                    }
                 }
             }
-            $course_groups = count($course_groups_array);
-            $group_submissions = count($group_submissions_array);
-            $group_gradings = count($group_gradings_array);
-            $ungraded = $group_submissions - $group_gradings;
-            $badge_text = $pre_text
-                .$group_submissions
+            $coursegroups = count($coursegroupsarray);
+            $groupsubmissions = count($groupsubmissionsarray);
+            $groupgradings = count($groupgradingsarray);
+            $ungraded = $groupsubmissions - $groupgradings;
+            $badgetext = $pretext
+                .$groupsubmissions
                 .$xofy
-                .$course_groups
-                .$groups_text
-                .$post_text
+                .$coursegroups
+                .$groupstext
+                .$posttext
             ;
-            // if there are ungraded submissions show that in the badge as well
-            if($ungraded) {
-                $badge_text =
-                    $badge_text
+            // If there are ungraded submissions show that in the badge as well.
+            if ($ungraded) {
+                $badgetext =
+                    $badgetext
                     .$spacer
                     .$ungraded
-                    .$ungraded_text;
+                    .$ungradedtext;
             }
 
-            if($badge_text) {
-                return $this->html_badge($badge_text, $badge_class);
+            if ($badgetext) {
+                return $this->html_badge($badgetext, $badgeclass);
             } else {
                 return '';
             }
@@ -429,31 +436,33 @@ class qmulweeks_course_renderer extends \core_course_renderer{
      */
     public function show_assign_submission($mod) {
         global $COURSE, $USER;
-        $badge_class = '';
+        $badgeclass = '';
         $badge_title = '';
-        $date_format = "%d %B %Y";
-        $time_format = "%d %B %Y %H:%M:%S";
+        $dateformat = "%d %B %Y";
+        $timeformat = "%d %B %Y %H:%M:%S";
 
         $submission = false;
-        foreach($COURSE->module_data as $module) {
-            if($module->module_name == 'assign' && $module->assign_userid == $USER->id && $module->assign_id == $mod->instance) {
+        foreach ($COURSE->module_data as $module) {
+            if ($module->module_name == 'assign' && $module->assign_userid == $USER->id &&
+                $module->assign_id == $mod->instance) {
                 $submission = $module;
                 break;
             }
         }
 
-        if($submission) {
-            $badge_text = get_string('badge_submitted', 'format_qmulweeks').userdate($submission->assign_submit_time,$date_format);
-            if($this->get_grading($mod) || $this->get_group_grading($mod)) {
-//                $badge_class = 'badge-success'; // this will turn the badge green
-                $badge_text .= get_string('badge_feedback', 'format_qmulweeks');
+        if ($submission) {
+            $badgetext = get_string('badge_submitted', 'format_qmulweeks').
+                userdate($submission->assign_submit_time,$dateformat);
+            if ($this->get_grading($mod) || $this->get_group_grading($mod)) {
+                $badgetext .= get_string('badge_feedback', 'format_qmulweeks');
             }
-            $badge_title = get_string('badge_submission_time_title', 'format_qmulweeks') . userdate($submission->assign_submit_time,$time_format);
+            $badge_title = get_string('badge_submission_time_title', 'format_qmulweeks') .
+                userdate($submission->assign_submit_time,$timeformat);
         } else {
-            $badge_text = get_string('badge_notsubmitted', 'format_qmulweeks');
+            $badgetext = get_string('badge_notsubmitted', 'format_qmulweeks');
         }
-        if($badge_text) {
-            return $this->html_badge($badge_text, $badge_class, $badge_title);
+        if ($badgetext) {
+            return $this->html_badge($badgetext, $badgeclass, $badge_title);
         } else {
             return '';
         }
@@ -469,9 +478,11 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         global $COURSE, $USER;
 
         $grading = [];
-        if (isset($COURSE->module_data)) foreach($COURSE->module_data as $module){
-            if($module->module_name == 'assign' && $module->assign_id == $mod->instance && $module->assign_userid == $USER->id && $module->assign_grade > 0) {
-                $grading[] = $module;
+        if (isset($COURSE->module_data)) {
+            foreach ($COURSE->module_data as $module) {
+                if ($module->module_name == 'assign' && $module->assign_id == $mod->instance && $module->assign_userid == $USER->id && $module->assign_grade > 0) {
+                    $grading[] = $module;
+                }
             }
         }
         return $grading;
@@ -486,11 +497,11 @@ class qmulweeks_course_renderer extends \core_course_renderer{
     public function get_group_grading($mod) {
         global $COURSE, $USER;
 
-        if(!isset($COURSE->group_assign_data)) {
+        if (!isset($COURSE->group_assign_data)) {
             return false;
         }
-        foreach($COURSE->group_assign_data as $record){
-            if($record->assignment = $mod->instance && $record->user_id = $USER->id && $record->grade > 0) {
+        foreach ($COURSE->group_assign_data as $record) {
+            if ($record->assignment = $mod->instance && $record->user_id = $USER->id && $record->grade > 0) {
                 return true;
             }
         }
@@ -506,24 +517,27 @@ class qmulweeks_course_renderer extends \core_course_renderer{
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function show_choice_badge($mod){
+    public function show_choice_badge($mod) {
         global $COURSE;
 
         $o = '';
-        if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-            // if the choice has a due date show it
-            if($module->module_name == 'choice' && $module->choice_id == $mod->instance && $module->choice_duedate > 0) {
-                $o .= $this->show_due_date_badge($module->choice_duedate);
-                break;
+        if (isset($COURSE->module_data)) {
+            foreach ($COURSE->module_data as $module) {
+                // If the choice has a due date show it.
+                if ($module->module_name == 'choice' && $module->choice_id == $mod->instance &&
+                    $module->choice_duedate > 0) {
+                    $o .= $this->show_due_date_badge($module->choice_duedate);
+                    break;
+                }
             }
         }
 
-        // check if the user is able to grade (e.g. is a teacher)
+        // Check if the user is able to grade (e.g. is a teacher).
         if (has_capability('mod/assign:grade', $mod->context)) {
-            // show submission numbers and ungraded submissions if any
+            // Show submission numbers and ungraded submissions if any.
             $o .= $this->show_choice_answers($mod);
         } else {
-            // show date of submission
+            // Show date of submission.
             $o .= $this->show_choice_answer($mod);
         }
 
@@ -541,29 +555,32 @@ class qmulweeks_course_renderer extends \core_course_renderer{
     public function show_choice_answers($mod) {
         global $COURSE;
 
-        // Show answers by enrolled students
-        $badge_text = '';
-        $badge_class = '';
+        // Show answers by enrolled students.
+        $badgetext = '';
+        $badgeclass = '';
         $capability = 'choice';
-        $pre_text = '';
+        $pretext = '';
         $xofy = ' of ';
-        $post_text = get_string('badge_answered', 'format_qmulweeks');
-        $enrolled_students = $this->enrolled_users($capability);
-        if($enrolled_students){
+        $posttext = get_string('badge_answered', 'format_qmulweeks');
+        $enrolledstudents = $this->enrolled_users($capability);
+        if ($enrolledstudents) {
             $submissions = 0;
-            if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-                if($module->module_name == 'choice' && $module->choice_userid != null && $module->choice_id == $mod->instance) {
-                    $submissions++;
+            if (isset($COURSE->module_data)) {
+                foreach ($COURSE->module_data as $module) {
+                    if ($module->module_name == 'choice' && $module->choice_userid != null &&
+                        $module->choice_id == $mod->instance) {
+                        $submissions++;
+                    }
                 }
             }
-            $badge_text = $pre_text
+            $badgetext = $pretext
                 .$submissions
                 .$xofy
-                .count($enrolled_students)
-                .$post_text;
+                .count($enrolledstudents)
+                .$posttext;
         }
-        if($badge_text != '') {
-            return $this->html_badge($badge_text, $badge_class);
+        if ($badgetext != '') {
+            return $this->html_badge($badgetext, $badgeclass);
         } else {
             return '';
         }
@@ -578,23 +595,26 @@ class qmulweeks_course_renderer extends \core_course_renderer{
      */
     public function show_choice_answer($mod) {
         global $COURSE, $DB, $USER;
-        $badge_class = '';
-        $date_format = "%d %B %Y";
+        $badgeclass = '';
+        $dateformat = "%d %B %Y";
 
         $submit_time = false;
-        if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-            if($module->module_name == 'choice' && $module->choice_id == $mod->instance && $module->choice_userid == $USER->id) {
-                $submit_time = $module->choice_submit_time;
-                break;
+        if (isset($COURSE->module_data)) {
+            foreach ($COURSE->module_data as $module) {
+                if ($module->module_name == 'choice' && $module->choice_id == $mod->instance &&
+                    $module->choice_userid == $USER->id) {
+                    $submit_time = $module->choice_submit_time;
+                    break;
+                }
             }
         }
-        if($submit_time) {
-//            $badge_class = 'badge-success';
-            $badge_text = get_string('badge_answered', 'format_qmulweeks').userdate($submit_time,$date_format);
+        if ($submit_time) {
+            $badgetext = get_string('badge_answered', 'format_qmulweeks').
+                userdate($submit_time,$dateformat);
         } else {
-            $badge_text = get_string('badge_notanswered', 'format_qmulweeks');
+            $badgetext = get_string('badge_notanswered', 'format_qmulweeks');
         }
-        return $this->html_badge($badge_text, $badge_class);
+        return $this->html_badge($badgetext, $badgeclass);
     }
 
     // Feedbacks.
@@ -606,24 +626,27 @@ class qmulweeks_course_renderer extends \core_course_renderer{
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function show_feedback_badge($mod){
+    public function show_feedback_badge($mod) {
         global $COURSE;
         $o = '';
 
-        if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-            // if the feedback has a due date show it
-            if($module->module_name == 'feedback' && $module->feedback_id == $mod->instance && $module->feedback_duedate > 0) {
-                $o .= $this->show_due_date_badge($module->feedback_duedate);
-                break;
+        if (isset($COURSE->module_data)) {
+            foreach ($COURSE->module_data as $module) {
+                // If the feedback has a due date show it.
+                if ($module->module_name == 'feedback' && $module->feedback_id == $mod->instance &&
+                    $module->feedback_duedate > 0) {
+                    $o .= $this->show_due_date_badge($module->feedback_duedate);
+                    break;
+                }
             }
         }
 
-        // check if the user is able to grade (e.g. is a teacher)
+        // Check if the user is able to grade (e.g. is a teacher).
         if (has_capability('mod/assign:grade', $mod->context)) {
-            // show submission numbers and ungraded submissions if any
+            // Show submission numbers and ungraded submissions if any.
             $o .= $this->show_feedback_completions($mod);
         } else {
-            // show date of submission
+            // Show date of submission.
             $o .= $this->show_feedback_completion($mod);
         }
 
@@ -641,31 +664,34 @@ class qmulweeks_course_renderer extends \core_course_renderer{
     public function show_feedback_completions($mod) {
         global $COURSE;
 
-        // Show answers by enrolled students
-        $badge_text = '';
-        $badge_class = '';
+        // Show answers by enrolled students.
+        $badgetext = '';
+        $badgeclass = '';
         $capability = 'feedback';
-        $pre_text = '';
+        $pretext = '';
         $xofy = ' of ';
-        $post_text = get_string('badge_completed', 'format_qmulweeks');
-        $enrolled_students = $this->enrolled_users($capability);
-        if($enrolled_students){
+        $posttext = get_string('badge_completed', 'format_qmulweeks');
+        $enrolledstudents = $this->enrolled_users($capability);
+        if ($enrolledstudents) {
             $submissions = 0;
-            if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-                if($module->module_name == 'feedback' && $module->feedback_id == $mod->instance && $module->feedback_userid != null) {
-                    $submissions++;
+            if (isset($COURSE->module_data)) {
+                foreach ($COURSE->module_data as $module) {
+                    if ($module->module_name == 'feedback' && $module->feedback_id == $mod->instance &&
+                        $module->feedback_userid != null) {
+                        $submissions++;
+                    }
                 }
             }
 
-            $badge_text = $pre_text
+            $badgetext = $pretext
                 .$submissions
                 .$xofy
-                .count($enrolled_students)
-                .$post_text;
+                .count($enrolledstudents)
+                .$posttext;
 
         }
-        if($badge_text != '') {
-            return $this->html_badge($badge_text, $badge_class);
+        if ($badgetext != '') {
+            return $this->html_badge($badgetext, $badgeclass);
         } else {
             return '';
         }
@@ -680,22 +706,26 @@ class qmulweeks_course_renderer extends \core_course_renderer{
      */
     public function show_feedback_completion($mod) {
         global $COURSE, $USER;
-        $badge_class = '';
-        $date_format = "%d %B %Y";
+        $badgeclass = '';
+        $dateformat = "%d %B %Y";
         $submission = false;
-        if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-            if($module->module_name == 'feedback' && $module->feedback_id == $mod->instance && $module->feedback_userid == $USER->id) {
-                $submission = $module;
-                break;
+        if (isset($COURSE->module_data)) {
+            foreach ($COURSE->module_data as $module) {
+                if ($module->module_name == 'feedback' && $module->feedback_id == $mod->instance &&
+                    $module->feedback_userid == $USER->id) {
+                    $submission = $module;
+                    break;
+                }
             }
         }
-        if($submission) {
-//            $badge_class = 'badge-success';
-            $badge_text = get_string('badge_completed', 'format_qmulweeks').userdate($submission->feedback_submit_time,$date_format);
+        if ($submission) {
+//            $badgeclass = 'badge-success';
+            $badgetext = get_string('badge_completed', 'format_qmulweeks').
+                userdate($submission->feedback_submit_time,$dateformat);
         } else {
-            $badge_text = get_string('badge_notcompleted', 'format_qmulweeks');
+            $badgetext = get_string('badge_notcompleted', 'format_qmulweeks');
         }
-        return $this->html_badge($badge_text, $badge_class);
+        return $this->html_badge($badgetext, $badgeclass);
     }
 
     // Lessons.
@@ -707,24 +737,26 @@ class qmulweeks_course_renderer extends \core_course_renderer{
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function show_lesson_badge($mod){
+    public function show_lesson_badge($mod) {
         global $COURSE;
         $o = '';
 
-        if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-            // if the feedback has a due date show it
-            if($module->module_name == 'lesson' & $module->lesson_id == $mod->instance && $module->lesson_duedate > 0) {
-                $o .= $this->show_due_date_badge($module->lesson_duedate);
-                break;
+        if (isset($COURSE->module_data)) {
+            foreach ($COURSE->module_data as $module) {
+                // If the feedback has a due date show it.
+                if ($module->module_name == 'lesson' & $module->lesson_id == $mod->instance && $module->lesson_duedate > 0) {
+                    $o .= $this->show_due_date_badge($module->lesson_duedate);
+                    break;
+                }
             }
         }
 
-        // check if the user is able to grade (e.g. is a teacher)
+        // Check if the user is able to grade (e.g. is a teacher).
         if (has_capability('mod/assign:grade', $mod->context)) {
-            // show submission numbers and ungraded submissions if any
+            // Show submission numbers and ungraded submissions if any.
             $o .= $this->show_lesson_attempts($mod);
         } else {
-            // show date of submission
+            // Show date of submission.
             $o .= $this->show_lesson_attempt($mod);
         }
 
@@ -742,44 +774,47 @@ class qmulweeks_course_renderer extends \core_course_renderer{
     public function show_lesson_attempts($mod) {
         global $COURSE;
 
-        // Show answers by enrolled students
+        // Show answers by enrolled students.
         $spacer = get_string('badge_commaspacer', 'format_qmulweeks');
-        $badge_text = '';
-        $badge_class = '';
+        $badgetext = '';
+        $badgeclass = '';
         $capability = 'lesson';
-        $pre_text = '';
+        $pretext = '';
         $xofy = ' of ';
-        $post_text = get_string('badge_attempted', 'format_qmulweeks');
-        $completed_text = get_string('badge_completed', 'format_qmulweeks');
-        $enrolled_students = $this->enrolled_users($capability);
-        if($enrolled_students){
+        $posttext = get_string('badge_attempted', 'format_qmulweeks');
+        $completedtext = get_string('badge_completed', 'format_qmulweeks');
+        $enrolledstudents = $this->enrolled_users($capability);
+        if ($enrolledstudents) {
             $submissions = [];
             $completed = [];
-            if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-                if($module->module_name == 'lesson' && $module->lesson_id == $mod->instance && $module->lesson_userid != null) {
-                    $submissions[$module->lesson_userid] = true;
-                    if($module->lesson_completed != null) {
-                        $completed[$module->lesson_userid] = true;
+            if (isset($COURSE->module_data)) {
+                foreach ($COURSE->module_data as $module) {
+                    if ($module->module_name == 'lesson' && $module->lesson_id == $mod->instance &&
+                        $module->lesson_userid != null) {
+                        $submissions[$module->lesson_userid] = true;
+                        if ($module->lesson_completed != null) {
+                            $completed[$module->lesson_userid] = true;
+                        }
                     }
                 }
             }
 
-            $badge_text = $pre_text
+            $badgetext = $pretext
                 .count($submissions)
                 .$xofy
-                .count($enrolled_students)
-                .$post_text;
+                .count($enrolledstudents)
+                .$posttext;
 
-            if($completed > 0) {
-                $badge_text =
-                    $badge_text
+            if ($completed > 0) {
+                $badgetext =
+                    $badgetext
                     .$spacer
                     .count($completed)
-                    .$completed_text;
+                    .$completedtext;
             }
         }
-        if($badge_text != '') {
-            return $this->html_badge($badge_text, $badge_class);
+        if ($badgetext != '') {
+            return $this->html_badge($badgetext, $badgeclass);
         } else {
             return '';
         }
@@ -794,26 +829,30 @@ class qmulweeks_course_renderer extends \core_course_renderer{
      */
     public function show_lesson_attempt($mod) {
         global $COURSE, $USER;
-        $badge_class = '';
-        $date_format = "%d %B %Y";
+        $badgeclass = '';
+        $dateformat = "%d %B %Y";
         $submission = false;
-        if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-            if($module->module_name == 'lesson' && $module->lesson_id == $mod->instance && $module->lesson_userid == $USER->id) {
-                $submission = $module;
-                break;
+        if (isset($COURSE->module_data)) {
+            foreach ($COURSE->module_data as $module) {
+                if ($module->module_name == 'lesson' && $module->lesson_id == $mod->instance &&
+                    $module->lesson_userid == $USER->id) {
+                    $submission = $module;
+                    break;
+                }
             }
         }
-        if($submission) {
-            if($submission->lesson_completed) {
-//            $badge_class = 'badge-success';
-                $badge_text = get_string('badge_completed', 'format_qmulweeks').userdate($submission->lesson_completed,$date_format);
+        if ($submission) {
+            if ($submission->lesson_completed) {
+                $badgetext = get_string('badge_completed', 'format_qmulweeks').
+                    userdate($submission->lesson_completed,$dateformat);
             } else {
-                $badge_text = get_string('badge_attempted', 'format_qmulweeks').userdate($submission->lesson_submit_time,$date_format);
+                $badgetext = get_string('badge_attempted', 'format_qmulweeks').
+                    userdate($submission->lesson_submit_time,$dateformat);
             }
         } else {
-            $badge_text = get_string('badge_notcompleted', 'format_qmulweeks');
+            $badgetext = get_string('badge_notcompleted', 'format_qmulweeks');
         }
-        return $this->html_badge($badge_text, $badge_class);
+        return $this->html_badge($badgetext, $badgeclass);
     }
 
     // Quizzes.
@@ -825,24 +864,26 @@ class qmulweeks_course_renderer extends \core_course_renderer{
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function show_quiz_badge($mod){
+    public function show_quiz_badge($mod) {
         global $COURSE;
         $o = '';
 
-        if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-            // if the quiz has a due date show it
-            if($module->quiz_id == $mod->instance && $module->quiz_duedate > 0) {
-                $o .= $this->show_due_date_badge($module->quiz_duedate);
-                break;
+        if (isset($COURSE->module_data)) {
+            foreach ($COURSE->module_data as $module) {
+                // If the quiz has a due date show it.
+                if ($module->quiz_id == $mod->instance && $module->quiz_duedate > 0) {
+                    $o .= $this->show_due_date_badge($module->quiz_duedate);
+                    break;
+                }
             }
         }
 
-        // check if the user is able to grade (e.g. is a teacher)
+        // Check if the user is able to grade (e.g. is a teacher).
         if (has_capability('mod/assign:grade', $mod->context)) {
-            // show submission numbers and ungraded submissions if any
+            // Show submission numbers and ungraded submissions if any.
             $o .= $this->show_quiz_attempts($mod);
         } else {
-            // show date of submission
+            // Show date of submission.
             $o .= $this->show_quiz_attempt($mod);
         }
 
@@ -860,36 +901,38 @@ class qmulweeks_course_renderer extends \core_course_renderer{
     public function show_quiz_attempts($mod) {
         global $COURSE;
 
-        // Show attempts by enrolled students
-        $badge_class = '';
+        // Show attempts by enrolled students.
+        $badgeclass = '';
         $capability = 'quiz';
-        $pre_text = '';
+        $pretext = '';
         $xofy = get_string('badge_xofy', 'format_qmulweeks');
-        $post_text = get_string('badge_attempted', 'format_qmulweeks');
-        $enrolled_students = $this->enrolled_users($capability);
+        $posttext = get_string('badge_attempted', 'format_qmulweeks');
+        $enrolledstudents = $this->enrolled_users($capability);
 
-        if($enrolled_students){
+        if ($enrolledstudents) {
             $submissions = 0;
             $finished = 0;
-            if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-                if($module->module_name == 'quiz' && $module->quiz_id == $mod->instance && $module->quiz_userid != null) {
-                    $submissions++;
-                    if($module->quiz_state == 'finished') {
-                        $finished++;
+            if (isset($COURSE->module_data)) {
+                foreach ($COURSE->module_data as $module) {
+                    if ($module->module_name == 'quiz' && $module->quiz_id == $mod->instance && $module->quiz_userid != null) {
+                        $submissions++;
+                        if ($module->quiz_state == 'finished') {
+                            $finished++;
+                        }
                     }
                 }
             }
-            $badge_text = $pre_text
+            $badgetext = $pretext
                 .$submissions
                 .$xofy
-                .count($enrolled_students)
-                .$post_text
+                .count($enrolledstudents)
+                .$posttext
                 .($submissions > 0 ? ', '.$finished.get_string('badge_finished', 'format_qmulweeks') : '');
             ;
 
         }
-        if($badge_text) {
-            return $this->html_badge($badge_text, $badge_class);
+        if ($badgetext) {
+            return $this->html_badge($badgetext, $badgeclass);
         } else {
             return '';
         }
@@ -905,31 +948,35 @@ class qmulweeks_course_renderer extends \core_course_renderer{
     public function show_quiz_attempt($mod) {
         global $COURSE, $DB, $USER;
         $o = '';
-        $badge_class = '';
-        $date_format = "%d %B %Y";
+        $badgeclass = '';
+        $dateformat = "%d %B %Y";
 
         $submissions = [];
-        if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-            if($module->module_name == 'quiz' && $module->quiz_id == $mod->instance && $module->quiz_userid == $USER->id) {
-                $submissions[] = $module;
+        if (isset($COURSE->module_data)) {
+            foreach ($COURSE->module_data as $module) {
+                if ($module->module_name == 'quiz' && $module->quiz_id == $mod->instance && $module->quiz_userid == $USER->id) {
+                    $submissions[] = $module;
+                }
             }
         }
 
-        if(count($submissions)) foreach($submissions as $submission) {
-            switch($submission->quiz_state) {
-                case "inprogress":
-                    $badge_text = get_string('badge_inprogress', 'format_qmulweeks').userdate($submission->quiz_timestart,$date_format);
-                    break;
-                case "finished":
-                    $badge_text = get_string('badge_finished', 'format_qmulweeks').userdate($submission->quiz_submit_time,$date_format);
-                    break;
-            }
-            if($badge_text) {
-                $o .= $this->html_badge($badge_text, $badge_class);
+        if (count($submissions)) {
+            foreach ($submissions as $submission) {
+                switch($submission->quiz_state) {
+                    case "inprogress":
+                        $badgetext = get_string('badge_inprogress', 'format_qmulweeks').userdate($submission->quiz_timestart,$dateformat);
+                        break;
+                    case "finished":
+                        $badgetext = get_string('badge_finished', 'format_qmulweeks').userdate($submission->quiz_submit_time,$dateformat);
+                        break;
+                }
+                if ($badgetext) {
+                    $o .= $this->html_badge($badgetext, $badgeclass);
+                }
             }
         } else {
-            $badge_text = get_string('badge_notattempted', 'format_qmulweeks');
-            $o .= $this->html_badge($badge_text, $badge_class);
+            $badgetext = get_string('badge_notattempted', 'format_qmulweeks');
+            $o .= $this->html_badge($badgetext, $badgeclass);
         }
         return $o;
     }

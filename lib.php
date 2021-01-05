@@ -51,8 +51,8 @@ class format_qmulweeks extends format_weeks2 {
 
         if ($forsection == false) {
             $fo = $this->get_format_options();
-            // Assessment Information
-            if(isset($fo['enable_assessmentinformation']) && $fo['enable_assessmentinformation'] == "1") {
+            // Assessment Information.
+            if (isset($fo['enable_assessmentinformation']) && $fo['enable_assessmentinformation'] == "1") {
                 $elements[] = $mform->addElement('header', 'assessmentinformation',
                     get_string('assessmentinformation', 'format_qmulweeks'));
                 $mform->addHelpButton('assessmentinformation', 'assessmentinformation',
@@ -64,7 +64,7 @@ class format_qmulweeks extends format_weeks2 {
             }
 
             // Extra Tab 1.
-            if(isset($fo['enable_extratab1']) && $fo['enable_extratab1'] == "1") {
+            if (isset($fo['enable_extratab1']) && $fo['enable_extratab1'] == "1") {
                 $elements[] = $mform->addElement('header', 'extratab1',
                     get_string('extratab', 'format_qmulweeks', 1));
                 $mform->addHelpButton('extratab1', 'extratab', 'format_qmulweeks',
@@ -78,7 +78,7 @@ class format_qmulweeks extends format_weeks2 {
             }
 
             // Extra Tab 2.
-            if(isset($fo['enable_extratab2']) && $fo['enable_extratab2'] == "1") {
+            if (isset($fo['enable_extratab2']) && $fo['enable_extratab2'] == "1") {
                 $elements[] = $mform->addElement('header', 'extratab2',
                     get_string('extratab', 'format_qmulweeks', 2));
                 $mform->addHelpButton('extratab2', 'extratab', 'format_qmulweeks',
@@ -92,7 +92,7 @@ class format_qmulweeks extends format_weeks2 {
             }
 
             // Extra Tab 3.
-            if(isset($fo['enable_extratab3']) && $fo['enable_extratab3'] == "1") {
+            if (isset($fo['enable_extratab3']) && $fo['enable_extratab3'] == "1") {
                 $elements[] = $mform->addElement('header', 'extratab3',
                     get_string('extratab', 'format_qmulweeks', 3));
                 $mform->addHelpButton('extratab3', 'extratab', 'format_qmulweeks',
@@ -207,7 +207,7 @@ class format_qmulweeks extends format_weeks2 {
 
         foreach ($savedata as $key => $value) {
             // From 3.6 on HTML editor will return an array - if so just get the txt to store.
-            if(gettype($value) == 'array' && isset($value['text'])){
+            if (gettype($value) == 'array' && isset($value['text'])) {
                 $value = $value['text'];
             }
              if (isset($records[$key])) {
@@ -270,8 +270,8 @@ class format_qmulweeks extends format_weeks2 {
 
         if ($sectionid == 0) {
             $alloptions = $DB->get_records('course_format_options',
-                        array('courseid'=>$this->courseid, 'format'=>'qmulweeks',
-                            'sectionid'=>0));
+                        array('courseid' => $this->courseid, 'format' => 'qmulweeks',
+                            'sectionid' => 0));
 
             foreach ($alloptions as $option) {
                 if (!isset($options[$option->name])) {
@@ -296,7 +296,7 @@ class format_qmulweeks extends format_weeks2 {
      */
     public function course_format_options($foreditform = false) {
         global $CFG;
-        $max_tabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
+        $maxtabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
 
         static $courseformatoptions = false;
         if ($courseformatoptions === false) {
@@ -334,31 +334,31 @@ class format_qmulweeks extends format_weeks2 {
 
             // The sequence in which the tabs will be displayed.
             $courseformatoptions['tab_seq'] = array('default' => '', 'type' => PARAM_TEXT, 'label' => '',
-                'element_type' => 'hidden',);
+                'element_type' => 'hidden');
 
             // Now loop through the tabs but don't show them as we only need the DB records.
             $courseformatoptions['tab0_title'] = array('default' => get_string('modulecontent',
-                'format_qmulgrid'), 'type' => PARAM_TEXT, 'label' => '', 'element_type' => 'hidden',);
+                'format_qmulgrid'), 'type' => PARAM_TEXT, 'label' => '', 'element_type' => 'hidden');
             $courseformatoptions['tab0'] = array('default' => "", 'type' => PARAM_TEXT, 'label' => '',
-                'element_type' => 'hidden',);
-            for ($i = 1; $i <= $max_tabs; $i++) {
+                'element_type' => 'hidden');
+            for ($i = 1; $i <= $maxtabs; $i++) {
                 $courseformatoptions['tab'.$i.'_title'] = array('default' => "Tab ".$i, 'type' => PARAM_TEXT,
-                    'label' => '', 'element_type' => 'hidden',);
+                    'label' => '', 'element_type' => 'hidden');
                 $courseformatoptions['tab'.$i] = array('default' => "", 'type' => PARAM_TEXT, 'label' => '',
-                    'element_type' => 'hidden',);
+                    'element_type' => 'hidden');
                 $courseformatoptions['tab'.$i.'_sectionnums'] = array('default' => "", 'type' => PARAM_TEXT,
-                    'label' => '', 'element_type' => 'hidden',);
+                    'label' => '', 'element_type' => 'hidden');
             }
 
             // Allow to store a name for the Assessment Info tab.
             $courseformatoptions['tab_assessment_information_title'] = array('default' =>
                 get_string('tab_assessment_information_title', 'format_qmulgrid'),
-                'type' => PARAM_TEXT, 'label' => '', 'element_type' => 'hidden',);
+                'type' => PARAM_TEXT, 'label' => '', 'element_type' => 'hidden');
 
             // Allow to store a name for the Assessment Info Block tab.
             $courseformatoptions['tab_assessment_info_block_title'] = array('default' =>
                 get_string('tab_assessment_info_block_title', 'format_qmulgrid'),
-                'type' => PARAM_TEXT, 'label' => '', 'element_type' => 'hidden',);
+                'type' => PARAM_TEXT, 'label' => '', 'element_type' => 'hidden');
 
         }
         if ($foreditform && !isset($courseformatoptions['coursedisplay']['label'])) {
@@ -369,7 +369,6 @@ class format_qmulweeks extends format_weeks2 {
                     'help_component' => 'format_weeks2',
                     'default' => (isset($CFG->max_tabs) ? $CFG->max_tabs : 5),
                     'type' => PARAM_INT,
-//                    'element_type' => 'hidden',
                 ),
                 'limittabname' => array(
                     'label' => get_string('limittabname_label', 'format_weeks2'),
@@ -377,7 +376,6 @@ class format_qmulweeks extends format_weeks2 {
                     'help_component' => 'format_weeks2',
                     'default' => 0,
                     'type' => PARAM_INT,
-//                    'element_type' => 'hidden',
                 ),
 
                 'hiddensections' => array(
@@ -534,9 +532,10 @@ class format_qmulweeks extends format_weeks2 {
         $settings = $this->removefromtabs($course, $section2move, $settings);
 
         // Add section number to new tab format settings if not tab0.
-        if($tabnum > 0){
+        if ($tabnum > 0) {
             $settings['tab'.$tabnum] .= ($settings['tab'.$tabnum] === '' ? '' : ',').$section2move->id;
-            $settings['tab'.$tabnum.'_sectionnums'] .= ($settings['tab'.$tabnum.'_sectionnums'] === '' ? '' : ',').$section2move->section;
+            $settings['tab'.$tabnum.'_sectionnums'] .= ($settings['tab'.$tabnum.'_sectionnums'] === '' ? '' : ',').
+                $section2move->section;
             $this->update_course_format_options($settings);
         }
         return $settings;
@@ -553,27 +552,27 @@ class format_qmulweeks extends format_weeks2 {
     public function removefromtabs($course, $section2remove, $settings) {
         global $CFG;
 
-        $max_tabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
+        $maxtabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
 
-        for($i = 0; $i <= $max_tabs; $i++) {
-            if(strstr($settings['tab'.$i], $section2remove->id) > -1) {
+        for($i = 0; $i <= $maxtabs; $i++) {
+            if (strstr($settings['tab'.$i], $section2remove->id) > -1) {
                 $sections = explode(',', $settings['tab'.$i]);
-                $new_sections = array();
-                foreach($sections as $section) {
-                    if($section != $section2remove->id) {
-                        $new_sections[] = $section;
+                $newsections = array();
+                foreach ($sections as $section) {
+                    if ($section != $section2remove->id) {
+                        $newsections[] = $section;
                     }
                 }
-                $settings['tab'.$i] = implode(',', $new_sections);
+                $settings['tab'.$i] = implode(',', $newsections);
 
-                $section_nums = explode(',', $settings['tab'.$i.'_sectionnums']);
-                $new_section_nums = array();
-                foreach($section_nums as $section_num) {
-                    if($section_num != $section2remove->section) {
-                        $new_section_nums[] = $section_num;
+                $sectionnums = explode(',', $settings['tab'.$i.'_sectionnums']);
+                $newsectionnums = array();
+                foreach ($sectionnums as $sectionnum) {
+                    if ($sectionnum != $section2remove->section) {
+                        $newsectionnums[] = $sectionnum;
                     }
                 }
-                $settings['tab'.$i.'_sectionnums'] = implode(',', $new_section_nums);
+                $settings['tab'.$i.'_sectionnums'] = implode(',', $newsectionnums);
                 $this->update_course_format_options($settings);
             }
         }
