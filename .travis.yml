@@ -58,7 +58,7 @@ before_install:
 # This lists steps that are run for installation and setup.
 install:
   # Add additional plugin
-  - moodle-plugin-ci add-plugin opitz/moodle-format_topics2
+  - moodle-plugin-ci add-plugin opitz/moodle-format_weeks2
   - moodle-plugin-ci add-plugin opitz/moodle-block_assessment_information
 
   # Run the default install.  The overview of what this does:
