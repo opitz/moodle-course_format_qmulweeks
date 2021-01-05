@@ -88,7 +88,7 @@ class restore_format_qmulweeks_plugin extends restore_format_plugin {
         $this->set_mapping($this->get_namefor('newssettings'), $oldid, $newitemid, true);
     }
 
-    protected function after_execute_structure() : void{
+    protected function after_execute_structure() : void {
 
     }
 }

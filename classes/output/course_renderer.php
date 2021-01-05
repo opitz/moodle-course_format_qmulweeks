@@ -90,7 +90,7 @@ class qmulweeks_course_renderer extends \core_course_renderer{
             $output .= $mod->afterlink;
 
             // Closing the tag which contains everything but edit icons. Content part of the module should not be part of this.
-            $output .= html_writer::end_tag('div'); // .activityinstance
+            $output .= html_writer::end_tag('div');
         }
 
         // If there is content but NO link (eg label), then display the
@@ -122,7 +122,7 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         $output .= $this->course_section_cm_availability($mod, $displayoptions);
 
         // If there is content AND a link, then display the content here
-        // (AFTER any icons). Otherwise it was displayed before
+        // (AFTER any icons). Otherwise it was displayed before.
         if (!empty($url)) {
             $output .= $contentpart;
         }
