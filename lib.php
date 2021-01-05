@@ -210,7 +210,7 @@ class format_qmulweeks extends format_weeks2 {
             if (gettype($value) == 'array' && isset($value['text'])) {
                 $value = $value['text'];
             }
-             if (isset($records[$key])) {
+            if (isset($records[$key])) {
                 if (array_key_exists($key, $newdata) && $records[$key]->value !== $newdata[$key]) {
                     $DB->set_field('course_format_options', 'value',
                             $value, array('id' => $records[$key]->id));
@@ -554,7 +554,7 @@ class format_qmulweeks extends format_weeks2 {
 
         $maxtabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
 
-        for($i = 0; $i <= $maxtabs; $i++) {
+        for ($i = 0; $i <= $maxtabs; $i++) {
             if (strstr($settings['tab'.$i], $section2remove->id) > -1) {
                 $sections = explode(',', $settings['tab'.$i]);
                 $newsections = array();

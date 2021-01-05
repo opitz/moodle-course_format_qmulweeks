@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/course/renderer.php');
@@ -72,8 +86,7 @@ class qmulweeks_course_renderer extends \core_course_renderer{
             $output .= html_writer::start_tag('div', array('class' => 'activityinstance'));
             $output .= $cmname;
 
-
-            // Module can put text after the link (e.g. forum unread)
+            // Module can put text after the link (e.g. forum unread).
             $output .= $mod->afterlink;
 
             // Closing the tag which contains everything but edit icons. Content part of the module should not be part of this.
@@ -114,12 +127,12 @@ class qmulweeks_course_renderer extends \core_course_renderer{
             $output .= $contentpart;
         }
 
-        // amending badges
+        // Amending badges.
         $output .= html_writer::start_div();
         $output .= $this->show_badges($mod);
         $output .= html_writer::end_div();
 
-        $output .= html_writer::end_tag('div'); // $indentclasses
+        $output .= html_writer::end_tag('div');
 
         // End of indentation div.
         $output .= html_writer::end_tag('div');
@@ -180,13 +193,12 @@ class qmulweeks_course_renderer extends \core_course_renderer{
             if ($duedate < (time() - 86400)) {
                 $duetext = get_string('badge_wasdue', 'format_qmulweeks');
             }
-        }
-        else if ($duedate < (time() + (60 * 60 * 24 * 14))) {
+        } else if ($duedate < (time() + (60 * 60 * 24 * 14))) {
             // Only 14 days left until the due date - show a yellow badge.
             $badgeclass = ' badge-warning';
         }
-        $badge_content = $duetext . userdate($duedate,$dateformat);
-        return $this->html_badge($badge_content, $badgeclass);
+        $badgecontent = $duetext . userdate($duedate, $dateformat);
+        return $this->html_badge($badgecontent, $badgeclass);
     }
 
     /**
@@ -234,7 +246,6 @@ class qmulweeks_course_renderer extends \core_course_renderer{
                 $capability = '';
         }
 
-
         $context = \context_course::instance($COURSE->id);
         $groupid = '';
 
@@ -244,7 +255,7 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         $sql = "SELECT DISTINCT u.id
                 FROM {user} u
                 $capjoin->joins
-                WHERE $capjoin->wheres 
+                WHERE $capjoin->wheres
                 AND u.deleted = 0
                 ";
         return $DB->get_records_sql($sql, $capjoin->params);
@@ -353,7 +364,6 @@ class qmulweeks_course_renderer extends \core_course_renderer{
                     .$ungradedtext;
             }
 
-
             if ($badgetext) {
                 return $this->html_badge($badgetext, $badgeclass);
             } else {
@@ -407,8 +417,7 @@ class qmulweeks_course_renderer extends \core_course_renderer{
                 .$xofy
                 .$coursegroups
                 .$groupstext
-                .$posttext
-            ;
+                .$posttext;
             // If there are ungraded submissions show that in the badge as well.
             if ($ungraded) {
                 $badgetext =
@@ -437,7 +446,7 @@ class qmulweeks_course_renderer extends \core_course_renderer{
     public function show_assign_submission($mod) {
         global $COURSE, $USER;
         $badgeclass = '';
-        $badge_title = '';
+        $badgetitle = '';
         $dateformat = "%d %B %Y";
         $timeformat = "%d %B %Y %H:%M:%S";
 
@@ -452,17 +461,17 @@ class qmulweeks_course_renderer extends \core_course_renderer{
 
         if ($submission) {
             $badgetext = get_string('badge_submitted', 'format_qmulweeks').
-                userdate($submission->assign_submit_time,$dateformat);
+                userdate($submission->assign_submit_time, $dateformat);
             if ($this->get_grading($mod) || $this->get_group_grading($mod)) {
                 $badgetext .= get_string('badge_feedback', 'format_qmulweeks');
             }
-            $badge_title = get_string('badge_submission_time_title', 'format_qmulweeks') .
-                userdate($submission->assign_submit_time,$timeformat);
+            $badgetitle = get_string('badge_submission_time_title', 'format_qmulweeks') .
+                userdate($submission->assign_submit_time, $timeformat);
         } else {
             $badgetext = get_string('badge_notsubmitted', 'format_qmulweeks');
         }
         if ($badgetext) {
-            return $this->html_badge($badgetext, $badgeclass, $badge_title);
+            return $this->html_badge($badgetext, $badgeclass, $badgetitle);
         } else {
             return '';
         }
@@ -480,7 +489,8 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         $grading = [];
         if (isset($COURSE->module_data)) {
             foreach ($COURSE->module_data as $module) {
-                if ($module->module_name == 'assign' && $module->assign_id == $mod->instance && $module->assign_userid == $USER->id && $module->assign_grade > 0) {
+                if ($module->module_name == 'assign' && $module->assign_id == $mod->instance &&
+                    $module->assign_userid == $USER->id && $module->assign_grade > 0) {
                     $grading[] = $module;
                 }
             }
@@ -598,19 +608,19 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         $badgeclass = '';
         $dateformat = "%d %B %Y";
 
-        $submit_time = false;
+        $submittime = false;
         if (isset($COURSE->module_data)) {
             foreach ($COURSE->module_data as $module) {
                 if ($module->module_name == 'choice' && $module->choice_id == $mod->instance &&
                     $module->choice_userid == $USER->id) {
-                    $submit_time = $module->choice_submit_time;
+                    $submittime = $module->choice_submit_time;
                     break;
                 }
             }
         }
-        if ($submit_time) {
+        if ($submittime) {
             $badgetext = get_string('badge_answered', 'format_qmulweeks').
-                userdate($submit_time,$dateformat);
+                userdate($submittime, $dateformat);
         } else {
             $badgetext = get_string('badge_notanswered', 'format_qmulweeks');
         }
@@ -719,9 +729,8 @@ class qmulweeks_course_renderer extends \core_course_renderer{
             }
         }
         if ($submission) {
-//            $badgeclass = 'badge-success';
             $badgetext = get_string('badge_completed', 'format_qmulweeks').
-                userdate($submission->feedback_submit_time,$dateformat);
+                userdate($submission->feedback_submit_time, $dateformat);
         } else {
             $badgetext = get_string('badge_notcompleted', 'format_qmulweeks');
         }
@@ -844,10 +853,10 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         if ($submission) {
             if ($submission->lesson_completed) {
                 $badgetext = get_string('badge_completed', 'format_qmulweeks').
-                    userdate($submission->lesson_completed,$dateformat);
+                    userdate($submission->lesson_completed, $dateformat);
             } else {
                 $badgetext = get_string('badge_attempted', 'format_qmulweeks').
-                    userdate($submission->lesson_submit_time,$dateformat);
+                    userdate($submission->lesson_submit_time, $dateformat);
             }
         } else {
             $badgetext = get_string('badge_notcompleted', 'format_qmulweeks');
@@ -964,10 +973,12 @@ class qmulweeks_course_renderer extends \core_course_renderer{
             foreach ($submissions as $submission) {
                 switch($submission->quiz_state) {
                     case "inprogress":
-                        $badgetext = get_string('badge_inprogress', 'format_qmulweeks').userdate($submission->quiz_timestart,$dateformat);
+                        $badgetext = get_string('badge_inprogress', 'format_qmulweeks').
+                            userdate($submission->quiz_timestart, $dateformat);
                         break;
                     case "finished":
-                        $badgetext = get_string('badge_finished', 'format_qmulweeks').userdate($submission->quiz_submit_time,$dateformat);
+                        $badgetext = get_string('badge_finished', 'format_qmulweeks').
+                            userdate($submission->quiz_submit_time, $dateformat);
                         break;
                 }
                 if ($badgetext) {

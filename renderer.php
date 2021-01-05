@@ -234,7 +234,7 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
         $tabs = parent::prepare_tabs($course, $formatoptions, $sections);
 
         // Merge old extratabs.
-        $tabs = array_merge($tabs,$this->prepare_extratabs($course, $formatoptions));
+        $tabs = array_merge($tabs, $this->prepare_extratabs($course, $formatoptions));
 
         // Merge tab(s) for assessment information (old and new).
         $tabs = array_merge($tabs, $this->prepare_assessment_tabs($course));
@@ -282,8 +282,8 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
         $tabs = array();
 
         // Get the installed blocks and check if the assessment info block is one of them.
-        $sql = "SELECT * FROM {context} cx 
-                join {block_instances} bi on bi.parentcontextid = cx.id 
+        $sql = "SELECT * FROM {context} cx
+                join {block_instances} bi on bi.parentcontextid = cx.id
                 where cx.contextlevel = 50 and cx.instanceid = ".$course->id;
         $installedblocks = $DB->get_records_sql($sql, array());
         $assessmentinfoblockid = false;
@@ -440,7 +440,7 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
             $params = array();
             if ($groups[0]) {
                 list ($groupsql, $params) = $DB->get_in_or_equal($groups[0]);
-                $sql .= ", CASE WHEN ovrd1.allowsubmissionsfromdate IS NULL THEN MIN(ovrd2.allowsubmissionsfromdate) 
+                $sql .= ", CASE WHEN ovrd1.allowsubmissionsfromdate IS NULL THEN MIN(ovrd2.allowsubmissionsfromdate)
                     ELSE ovrd1.allowsubmissionsfromdate END AS timeopenover,
                     CASE WHEN ovrd1.duedate IS NULL THEN MAX(ovrd2.duedate) ELSE ovrd1.duedate END AS timecloseover
                     FROM {assign} module
