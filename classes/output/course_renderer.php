@@ -125,6 +125,14 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         return $output;
     }
 
+    /**
+     * Show badges for the given module
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     public function show_badges($mod){
         switch($mod->modname) {
             case 'assign':
@@ -147,6 +155,13 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         }
     }
 
+    /**
+     * Show a due date badge
+     *
+     * @param $duedate
+     * @return string
+     * @throws coding_exception
+     */
     public function show_due_date_badge($duedate) {
         // If duedate is 0 don't show a badge.
         if ($duedate == 0) {
@@ -171,6 +186,15 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         return $this->html_badge($badge_content, $badge_class);
     }
 
+    /**
+     * Return the html for a badge
+     *
+     * @param $badgetext
+     * @param string $badgeclass
+     * @param string $title
+     * @return string
+     * @throws coding_exception
+     */
     public function html_badge($badge_text, $badge_class = "", $title = ""){
         $o = '';
         $o .= html_writer::div($badge_text, 'badge '.$badge_class, array('title' => $title));
@@ -178,6 +202,14 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         return $o;
     }
 
+    // Assignments.
+    /**
+     * Get the enrolled users with the given capability
+     *
+     * @param $capability
+     * @return array
+     * @throws dml_exception
+     */
     public function enrolled_users($capability){
         global $COURSE, $DB;
 
@@ -216,9 +248,13 @@ class qmulweeks_course_renderer extends \core_course_renderer{
 
     }
 
-    // Assignments -----------------------------------------------------------------------------------------------------
-    /*
+    /**
      * Show badge for assign plus additional due date badge
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_assignment_badges($mod){
         global $COURSE;
@@ -254,8 +290,13 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         return $o;
     }
 
-    /*
+    /**
      * Show badge with submissions and gradings for all students
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_assign_submissions($mod) {
         global $COURSE;
@@ -316,8 +357,13 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         }
     }
 
-    /*
+    /**
      * Show badge with submissions and gradings for all groups
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_assign_group_submissions($mod) {
         global $COURSE;
@@ -373,9 +419,13 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         }
     }
 
-    /*
+    /**
      * A badge to show the student as $USER his/her submission status
      * It will display the date of a submission, a mouseover will show the time for the submission
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
     public function show_assign_submission($mod) {
         global $COURSE, $USER;
@@ -409,8 +459,11 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         }
     }
 
-    /*
+    /**
      * Return grading if the given student as $USER has been graded yet
+     *
+     * @param $mod
+     * @return array
      */
     public function get_grading($mod) {
         global $COURSE, $USER;
@@ -424,8 +477,11 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         return $grading;
     }
 
-    /*
+    /**
      * Return true if the submission of the group of which the given student is a member has already been graded
+     *
+     * @param $mod
+     * @return bool
      */
     public function get_group_grading($mod) {
         global $COURSE, $USER;
@@ -441,9 +497,14 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         return false;
     }
 
-    // Choices ---------------------------------------------------------------------------------------------------------
-    /*
+    // Choices.
+    /**
      * Show badge for choice plus a due date badge if there is a due date
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_choice_badge($mod){
         global $COURSE;
@@ -469,8 +530,13 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         return $o;
     }
 
-    /*
+    /**
      * Show badge with choice answers of all students
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_choice_answers($mod) {
         global $COURSE;
@@ -503,8 +569,12 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         }
     }
 
-    /*
+    /**
      * Show choice answer for current student as $USER
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
     public function show_choice_answer($mod) {
         global $COURSE, $DB, $USER;
@@ -527,9 +597,14 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         return $this->html_badge($badge_text, $badge_class);
     }
 
-    // Feedbacks -------------------------------------------------------------------------------------------------------
-    /*
+    // Feedbacks.
+    /**
      * Show feedback badge plus a due date badge if there is a due date
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_feedback_badge($mod){
         global $COURSE;
@@ -555,8 +630,13 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         return $o;
     }
 
-    /*
+    /**
      * Show badge with feedback completions of all students
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_feedback_completions($mod) {
         global $COURSE;
@@ -591,8 +671,12 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         }
     }
 
-    /*
+    /**
      * Show feedback by current student as $USER
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
     public function show_feedback_completion($mod) {
         global $COURSE, $USER;
@@ -614,9 +698,14 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         return $this->html_badge($badge_text, $badge_class);
     }
 
-    // Lessons -------------------------------------------------------------------------------------------------------
-    /*
+    // Lessons.
+    /**
      * Show lesson badge plus additional due date badge if there is a due date
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_lesson_badge($mod){
         global $COURSE;
@@ -642,8 +731,13 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         return $o;
     }
 
-    /*
+    /**
      * Show badge with lesson attempts of all students
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_lesson_attempts($mod) {
         global $COURSE;
@@ -691,8 +785,12 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         }
     }
 
-    /*
+    /**
      * Show lesson attempt for the current student as $USER
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
     public function show_lesson_attempt($mod) {
         global $COURSE, $USER;
@@ -718,9 +816,14 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         return $this->html_badge($badge_text, $badge_class);
     }
 
-    // Quizzes ---------------------------------------------------------------------------------------------------------
-    /*
+    // Quizzes.
+    /**
      * Quiz badge plus a due date badge if there is a due date
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_quiz_badge($mod){
         global $COURSE;
@@ -746,8 +849,13 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         return $o;
     }
 
-    /*
-     * Show quiz attempts of all stydents
+    /**
+     * Show quiz attempts of all students.
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_quiz_attempts($mod) {
         global $COURSE;
@@ -787,8 +895,12 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         }
     }
 
-    /*
+    /**
      * Show quiz attempts for the current student as $USER
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
     public function show_quiz_attempt($mod) {
         global $COURSE, $DB, $USER;

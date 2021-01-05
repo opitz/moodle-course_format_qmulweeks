@@ -48,20 +48,23 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
         $this->tcsettings = $this->courseformat->get_format_options();
     }
 
-    public function __construct(moodle_page $page, $target)
-    {
+    public function __construct(moodle_page $page, $target) {
         global $COURSE;
 
         parent::__construct($page, $target);
         $this->courseformat = course_get_format($page->course);
         $this->tcsettings = $this->courseformat->get_format_options();
-        // let's use our own course renderer as we want to add badges to the module output
+        // If theme badges are not enabled let's use our own course renderer as we want to add badges to the module output.
         $usethemebadges = get_config('format_qmulweeks', 'usethemebadges');
-        if($usethemebadges != 1) {
-            $this->courserenderer = new qmulweeks_course_renderer($page, null);
-            // create COURSE objects that contain data about modules and groups used in this course
-            $COURSE->module_data = $this->get_module_data();
-            $COURSE->group_assign_data = $this->get_group_assign_data();
+        if ($usethemebadges != 1) {
+            $newcourserenderer = new qmulweeks_course_renderer($page, null);
+            // But only if there are less that 1000 students enrolled into the course.
+            if (count($newcourserenderer->enrolled_users("")) < 1000) {
+                $this->courserenderer = $newcourserenderer;
+                // Create objects that contain data about modules and groups used in this course.
+                $COURSE->module_data = $this->get_module_data();
+                $COURSE->group_assign_data = $this->get_group_assign_data();
+            }
         }
     }
 
@@ -74,74 +77,74 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
     public function get_module_data() {
         global $COURSE, $DB;
         $sql = "
-select concat_ws('', cm.id,a.id, asu.id, ag.id, c.id, ca.id, f.id, fc.id, l.id,la.id,lg.id,q.id,qa.id,qg.id) as row_id
-,m.name as module_name
-#,'assign >'
-,a.id as assign_id
-,a.name as assign
-,a.duedate as assign_duedate
-,a.teamsubmission
-,a.requireallteammemberssubmit
-,asu.userid as assign_userid
-,asu.status as assign_submission_status
-,asu.timemodified as assign_submit_time
-,ag.grade as assign_grade
-,ag.timemodified as assign_grade_time
-#,'choice >'
-,c.id as choice_id
-,c.name as choice
-,c.timeopen as choice_timeopen
-,c.timeclose as choice_duedate
-,ca.userid as choice_userid
-,ca.timemodified as choice_submit_time
-#,'feedback >'
-,f.id as feedback_id
-,f.name as feedback
-,f.timeopen as feedback_timeopen
-,f.timeclose as feedback_duedate
-,fc.userid as feedback_userid
-,fc.timemodified as feedback_submit_time
-#,'lesson >'
-,l.id as lesson_id
-,l.name as lesson
-,l.deadline as lesson_duedate
-,la.userid as lesson_userid
-,la.correct
-,la.timeseen as lesson_submit_time
-,lg.grade as lesson_grade
-,lg.completed as lesson_completed
-#,'quiz >'
-,q.id as quiz_id
-,q.name as quiz_name
-,q.timeopen as quiz_timeopen
-,q.timeclose as quiz_duedate
-,qa.userid as quiz_userid
-,qa.state as quiz_state
-,qa.timestart as quiz_timestart
-,qa.timefinish as quiz_submit_time
-,qg.grade as quiz_grade
-from {course_modules} cm
-join {modules} m on m.id = cm.module
-# assign
-left join {assign} a on a.id = cm.instance and a.course = cm.course and m.name = 'assign'
-left join {assign_submission} asu on asu.assignment = a.id
-left join {assign_grades} ag on ag.assignment = asu.assignment and ag.userid = asu.userid
-# choice
-left join {choice} c on c.id = cm.instance and c.course = cm.course and m.name = 'choice'
-left join {choice_answers} ca on ca.choiceid = c.id
-# feedback
-left join {feedback} f on f.id = cm.instance and f.course = cm.course and m.name = 'feedback'
-left join {feedback_completed} fc on fc.feedback = f.id
-# lesson
-left join {lesson} l on l.id = cm.instance and l.course = cm.course and m.name = 'lesson'
-left join {lesson_attempts} la on la.lessonid = l.id
-left join {lesson_grades} lg on lg.lessonid = la.lessonid and lg.userid = la.userid
-# quiz
-left join {quiz} q on q.id = cm.instance and q.course = cm.course and m.name = 'quiz'
-left join {quiz_attempts} qa on qa.quiz = q.id
-left join {quiz_grades} qg on qg.quiz = qa.quiz and qg.userid = qa.userid
-where 1
-and cm.course = $COURSE->id
+            select concat_ws('', cm.id,a.id, asu.id, ag.id, c.id, ca.id, f.id, fc.id, l.id,la.id,lg.id,q.id,qa.id,qg.id) as row_id
+            ,m.name as module_name
+            #,'assign >'
+            ,a.id as assign_id
+            ,a.name as assign
+            ,a.duedate as assign_duedate
+            ,a.teamsubmission
+            ,a.requireallteammemberssubmit
+            ,asu.userid as assign_userid
+            ,asu.status as assign_submission_status
+            ,asu.timemodified as assign_submit_time
+            ,ag.grade as assign_grade
+            ,ag.timemodified as assign_grade_time
+            #,'choice >'
+            ,c.id as choice_id
+            ,c.name as choice
+            ,c.timeopen as choice_timeopen
+            ,c.timeclose as choice_duedate
+            ,ca.userid as choice_userid
+            ,ca.timemodified as choice_submit_time
+            #,'feedback >'
+            ,f.id as feedback_id
+            ,f.name as feedback
+            ,f.timeopen as feedback_timeopen
+            ,f.timeclose as feedback_duedate
+            ,fc.userid as feedback_userid
+            ,fc.timemodified as feedback_submit_time
+            #,'lesson >'
+            ,l.id as lesson_id
+            ,l.name as lesson
+            ,l.deadline as lesson_duedate
+            ,la.userid as lesson_userid
+            ,la.correct
+            ,la.timeseen as lesson_submit_time
+            ,lg.grade as lesson_grade
+            ,lg.completed as lesson_completed
+            #,'quiz >'
+            ,q.id as quiz_id
+            ,q.name as quiz_name
+            ,q.timeopen as quiz_timeopen
+            ,q.timeclose as quiz_duedate
+            ,qa.userid as quiz_userid
+            ,qa.state as quiz_state
+            ,qa.timestart as quiz_timestart
+            ,qa.timefinish as quiz_submit_time
+            ,qg.grade as quiz_grade
+            from {course_modules} cm
+            join {modules} m on m.id = cm.module
+            # assign
+            left join {assign} a on a.id = cm.instance and a.course = cm.course and m.name = 'assign'
+            left join {assign_submission} asu on asu.assignment = a.id
+            left join {assign_grades} ag on ag.assignment = asu.assignment and ag.userid = asu.userid
+            # choice
+            left join {choice} c on c.id = cm.instance and c.course = cm.course and m.name = 'choice'
+            left join {choice_answers} ca on ca.choiceid = c.id
+            # feedback
+            left join {feedback} f on f.id = cm.instance and f.course = cm.course and m.name = 'feedback'
+            left join {feedback_completed} fc on fc.feedback = f.id
+            # lesson
+            left join {lesson} l on l.id = cm.instance and l.course = cm.course and m.name = 'lesson'
+            left join {lesson_attempts} la on la.lessonid = l.id
+            left join {lesson_grades} lg on lg.lessonid = la.lessonid and lg.userid = la.userid
+            # quiz
+            left join {quiz} q on q.id = cm.instance and q.course = cm.course and m.name = 'quiz'
+            left join {quiz_attempts} qa on qa.quiz = q.id
+            left join {quiz_grades} qg on qg.quiz = qa.quiz and qg.userid = qa.userid
+            where 1
+            and cm.course = $COURSE->id
         ";
         return $DB->get_records_sql($sql);
     }
@@ -152,27 +155,46 @@ and cm.course = $COURSE->id
      * @return array
      * @throws dml_exception
      */
-    public function get_group_assign_data(){
+    public function get_group_assign_data0(){
         global $COURSE, $DB;
         $sql = "
-SELECT 
-gm.id as ID
-,asu.assignment
-,asu.groupid
-,ag.userid
-,ag.grade
-FROM {assign_submission} asu
-join {assign} a on a.id = asu.assignment
-join {groups_members} gm on gm.groupid = asu.groupid
-left join {assign_grades} ag on (ag.assignment = asu.assignment and ag.userid = gm.userid)
-where asu.groupid > 0
-and a.course = $COURSE->id
-";
+            SELECT 
+            gm.id as ID
+            ,asu.assignment
+            ,asu.groupid
+            ,ag.userid
+            ,ag.grade
+            FROM {assign_submission} asu
+            join {assign} a on a.id = asu.assignment
+            join {groups_members} gm on gm.groupid = asu.groupid
+            left join {assign_grades} ag on (ag.assignment = asu.assignment and ag.userid = gm.userid)
+            where asu.groupid > 0
+            and a.course = $COURSE->id
+        ";
 
         return $DB->get_records_sql($sql);
     }
+    protected function get_group_assign_data() {
+        global $COURSE, $DB;
+        $sql = "
+            select
+             g.id
+            , gm.id as ID
+            , gm.groupid
+            , gm.userid
+            , asu.assignment
+            ,ag.grade
+            from {groups} g
+            join {groups_members} gm on gm.groupid = g.id
+            left join {assign_submission} asu on asu.groupid = g.id
+            left join {assign_grades} ag on (ag.assignment = asu.assignment and ag.userid = gm.userid)
+            where g.courseid = $COURSE->id and asu.userid = 0";
+        return $DB->get_records_sql($sql);
+    }
 
-    // Require the jQuery file for this class
+    /**
+     * Require the jQuery files for this class
+     */
     public function require_js() {
         $this->page->requires->js_call_amd('format_qmulweeks/tabs', 'init', array());
         $this->page->requires->js_call_amd('format_weeks2/toggle', 'init', array());
@@ -216,24 +238,37 @@ and a.course = $COURSE->id
         return $o;
     }
 
-    // Prepare standard tabs with added assessment info tab and extratabs
-    public function prepare_tabs($course, $format_options, $sections) {
+    /**
+     * Prepare standard tabs with added assessment info tab and extratabs
+     *
+     * @param array|stdClass $course
+     * @param array|stdClass $formatoptions
+     * @param array|stdClass $sections
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function prepare_tabs($course, $formatoptions, $sections) {
         // Get the standard tabs
-        $tabs = parent::prepare_tabs($course, $format_options, $sections);
+        $tabs = parent::prepare_tabs($course, $formatoptions, $sections);
 
         // Merge old extratabs
-        $tabs = array_merge($tabs,$this->prepare_extratabs($course, $format_options));
+        $tabs = array_merge($tabs,$this->prepare_extratabs($course, $formatoptions));
 
         // Merge tab(s) for assessment information (old and new)
-        $tabs = array_merge($tabs, $this->prepare_assessment_tabs($course, $format_options));
-//        $tabs = array_merge($tabs, $this->prepare_assessment_tab($course, $format_options));
+        $tabs = array_merge($tabs, $this->prepare_assessment_tabs($course));
+//        $tabs = array_merge($tabs, $this->prepare_assessment_tab($course, $formatoptions));
 
         $this->tabs = $tabs;
         return $tabs;
     }
 
-    // prepare the old extratabs for legacy reasons
-    public function prepare_extratabs($course, $format_options) {
+    /**
+     * Prepare the old extratabs for legacy reasons
+     *
+     * @return array
+     */
+    public function prepare_extratabs($course, $formatoptions) {
         $extratabnames = array('extratab1', 'extratab2', 'extratab3');
         $extratabs = array();
         foreach ($extratabnames as $extratabname) {
@@ -246,129 +281,23 @@ and a.course = $COURSE->id
                 $tab->generic_title = ucfirst($extratabname);
                 $tab->sections = $extratabname;
                 $tab->section_nums = "";
-                $tab->content = format_text($this->tcsettings["content_{$extratabname}"], FORMAT_HTML, array('trusted' => true, 'noclean' => true));
+                $tab->content = format_text($this->tcsettings["content_{$extratabname}"], FORMAT_HTML,
+                    array('trusted' => true, 'noclean' => true));
                 $extratabs[$tab->id] = $tab;
             }
         }
         return $extratabs;
     }
 
-    // Prepare the assessment Information tabs (old and new)
-    public function prepare_assessment_tab($course, $format_options) {
-        global $CFG, $DB, $PAGE;
-
-        $tabs = array();
-        $show_ai_tab = false;
-
-        // get the installed blocks and check if the assessment info block is one of them
-        $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$course->id;
-        $installed_blocks = $DB->get_records_sql($sql, array());
-        $assessment_info_block_id = false;
-        foreach($installed_blocks as $installed_block) {
-            if($installed_block->blockname == 'assessment_information') {
-                $assessment_info_block_id = (int)$installed_block->id;
-                break;
-            }
-        }
-
-        if ($assessment_info_block_id) { // The AI block is installed ...
-            if ($PAGE->user_is_editing() // ... but the format option has not been set yet - so let's do it
-                && isset($this->tcsettings['enable_assessmentinformation'])
-                && $this->tcsettings['enable_assessmentinformation'] == 0) {
-                // set the format_option accordingly
-                $fo_record = $DB->get_record('course_format_options', array('name' => 'enable_assessmentinformation', 'courseid' => $course->id));
-                $fo_record->value = 1;
-                $DB->update_record('course_format_options', $fo_record);
-            }
-            $show_ai_tab = true;
-        } else if (isset($this->tcsettings['enable_assessmentinformation'])
-            && $this->tcsettings['enable_assessmentinformation'] == 1) {
-            // Add the AI block if necessary
-            if($this->add_assessment_information_block($course)) {
-                $show_ai_tab = true;
-            }
-        }
-
-        if ($show_ai_tab) {
-            // now do the tab
-            $tab = (object) new stdClass();
-            $tab->id = "tab_assessment_info_block";
-            $tab->name = 'assessment_info_block';
-            $tab->title = $this->tcsettings['tab_assessment_info_block_title'];
-            $tab->generic_title = get_string('tab_assessment_info_title', 'format_qmultopics');
-//            $tab->content = $this->tcsettings['content_assessmentinformation']; // not required - we are only interested in the tab ***BAUSTELLE***
-            $tab->content = ''; // not required - we are only interested in the tab
-            $tab->sections = "block_assessment_information";
-            $tab->section_nums = "";
-            $tabs[$tab->id] = $tab;
-            // in case the assessment info tab is not present but should be in the tab sequence when used fix this
-            if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
-                $this->tcsettings['tab_seq'] .= ','.$tab->id;
-            }
-        }
-        return $tabs;
-    }
-
-    // check and add the assessment information
-    public function prepare_assessment_tabs0($course, $format_options) {
-        global $CFG, $DB, $PAGE;
-
-        $tabs = array();
-
-        // get the installed blocks and check if the assessment info block is one of them
-        $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$course->id;
-        $installed_blocks = $DB->get_records_sql($sql, array());
-        $assessment_info_block_id = false;
-        foreach($installed_blocks as $installed_block) {
-            if($installed_block->blockname == 'assessment_information') {
-                $assessment_info_block_id = (int)$installed_block->id;
-                break;
-            }
-        }
-        // the assessment info block tab
-        if (isset($this->tcsettings['assessment_info_block_tab']) &&
-            $assessment_info_block_id &&
-            $this->tcsettings['assessment_info_block_tab'] == 1) {
-            $tab = (object) new stdClass();
-            $tab->id = "tab_assessment_info_block";
-            $tab->name = 'assessment_info_block';
-            $tab->title = $this->tcsettings['tab_assessment_info_block_title'];
-            $tab->generic_title = get_string('tab_assessment_info_title', 'format_qmulweeks');
-            $tab->content = ''; // not required - we are only interested in the tab
-            $tab->sections = "block_assessment_information";
-            $tab->section_nums = "";
-            $tabs[$tab->id] = $tab;
-            // in case the assment info tab is not present but should be in the tab sequence when used fix this
-            if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
-                $this->tcsettings['tab_seq'] .= ','.$tab->id;
-//                $format_options['tab_seq'] .= ','.$tab->id;
-            }
-        }
-
-        // the old assessment info tab - as a new tab
-        if (isset($this->tcsettings['enable_assessmentinformation']) &&
-            $this->tcsettings['enable_assessmentinformation'] == 1) {
-            $tab = (object) new stdClass();
-            $tab->id = "tab_assessment_information";
-            $tab->name = 'assessment_info';
-            $tab->title = $this->tcsettings['tab_assessment_information_title'];
-            $tab->generic_title = get_string('tab_assessment_information_title', 'format_qmulweeks');
-            // Get the synergy assessment info and store the result as content for this tab
-            $tab->content = $this->get_assessmentinformation($this->tcsettings['content_assessmentinformation']);
-            $tab->sections = "assessment_information";
-            $tab->section_nums = "";
-            $tabs[$tab->id] = $tab;
-            // in case the assment info tab is not present but should be in the tab sequence when used fix this
-            if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
-                $this->tcsettings['tab_seq'] .= ','.$tab->id;
-//                $format_options['tab_seq'] .= ','.$tab->id;
-            }
-        }
-
-        return $tabs;
-    }
-    public function prepare_assessment_tabs($course, $format_options) {
-        global $CFG, $DB, $PAGE;
+    /**
+     * Prepare the assessment Information tabs (old and new)
+     * @param array|stdClass $course
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function prepare_assessment_tabs($course) {
+        global $DB;
 
         $tabs = array();
 
@@ -404,7 +333,7 @@ and a.course = $COURSE->id
             // in case the assment info tab is not present but should be in the tab sequence when used fix this
             if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
                 $this->tcsettings['tab_seq'] .= ','.$tab->id;
-//                $format_options['tab_seq'] .= ','.$tab->id;
+//                $formatoptions['tab_seq'] .= ','.$tab->id;
             }
         }
 
@@ -424,12 +353,19 @@ and a.course = $COURSE->id
             // in case the assment info tab is not present but should be in the tab sequence when used fix this
             if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
                 $this->tcsettings['tab_seq'] .= ','.$tab->id;
-//                $format_options['tab_seq'] .= ','.$tab->id;
+//                $formatoptions['tab_seq'] .= ','.$tab->id;
             }
         }
 
         return $tabs;
     }
+
+    /**
+     * check and add the assessment information
+     * @param array|stdClass $course
+     * @return bool|int
+     * @throws dml_exception
+     */
     public function add_assessment_information_block($course) {
         global $DB;
         // get block context for the course
@@ -451,7 +387,15 @@ and a.course = $COURSE->id
         return $DB->insert_record('block_instances', $ai_record);
     }
 
-    // Get the content for the assessment information section
+    /**
+     * Get the content for the assessment information section
+     *
+     * @param $content
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
     public function get_assessmentinformation($content) {
         global $CFG, $DB, $COURSE, $OUTPUT, $USER;
 
@@ -601,7 +545,12 @@ and a.course = $COURSE->id
         return html_writer::tag('div', $output, array('class'=>'row'));
     }
 
-    // Get assignments for assessment information
+    /**
+     * Get assignments for assessment information
+     *
+     * @return moodle_recordset
+     * @throws dml_exception
+     */
     public function get_assignments() {
         global $DB, $COURSE, $USER;
         $sql = "
@@ -634,7 +583,14 @@ and a.course = $COURSE->id
         return $assignments;
     }
 
-    // Render a standard tab or an extratab - as long as they are still around...
+    /**
+     * Render a standard tab or an extratab - as long as they are still around...
+     *
+     * @param array|stdClass $tab
+     * @return bool|string
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     public function render_tab($tab){
         if(!isset($tab)) {
             return false;
@@ -648,7 +604,14 @@ and a.course = $COURSE->id
         }
     }
 
-    // Render an extratab
+    /**
+     * Render an extratab
+     *
+     * @param $tab
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     public function render_extratab($tab) {
         global $DB, $PAGE, $OUTPUT;
         $o = '';
@@ -713,32 +676,47 @@ and a.course = $COURSE->id
         return $o;
     }
 
-    // Render sections with added assessment info and extratab sections
-    public function render_sections($course, $sections, $format_options, $modinfo, $numsections){
+    /**
+     * Render sections with added assessment info and extratab sections
+     *
+     * @param array|stdClass $course
+     * @param array|stdClass $sections
+     * @param array|stdClass $formatoptions
+     * @param array|stdClass $modinfo
+     * @param int $numsections
+     * @return string
+     * @throws dml_exception
+     */
+    public function render_sections($course, $sections, $formatoptions, $modinfo, $numsections){
         global $DB;
 
         // First we check if the course used a legacy COLLAPSE course display - and if so set the coursedisplay option correctly if needed
-        if ($format_options['coursedisplay'] == COURSE_DISPLAY_COLLAPSE) {
+        if ($formatoptions['coursedisplay'] == COURSE_DISPLAY_COLLAPSE) {
             $cdrecord = $DB->get_record('course_format_options', array('courseid' => $course->id, 'name' => 'coursedisplay'));
             $cdrecord->value = COURSE_DISPLAY_SINGLEPAGE;
             $DB->update_record('course_format_options', $cdrecord);
             $course->coursedisplay = COURSE_DISPLAY_SINGLEPAGE;
-            $format_options['coursedisplay'] == COURSE_DISPLAY_SINGLEPAGE;
+            $formatoptions['coursedisplay'] == COURSE_DISPLAY_SINGLEPAGE;
         }
 
         $o = '';
-        $o .= $this->render_assessment_section($format_options);
-        $o .= $this->render_extratab_sections($format_options);
-        $o .= parent::render_sections($course, $sections, $format_options, $modinfo, $numsections);
+        $o .= $this->render_assessment_section($formatoptions);
+        $o .= $this->render_extratab_sections($formatoptions);
+        $o .= parent::render_sections($course, $sections, $formatoptions, $modinfo, $numsections);
         return $o;
     }
 
-    // Render extratab sections as long as they are still around...
-    public function render_extratab_sections($format_options) {
+    /**
+     * Render extratab sections as long as they are still around...
+     *
+     * @param array|stdClass $formatoptions
+     * @return string
+     */
+    public function render_extratab_sections($formatoptions) {
         $extratabnames = array('extratab1', 'extratab2', 'extratab3');
         $o = '';
         foreach ($extratabnames as $extratabname) {
-            if ($format_options['enable_'.$extratabname]) {
+            if ($formatoptions['enable_'.$extratabname]) {
                 $o .= html_writer::start_tag('li', array('id' => $extratabname, 'section-id' => $extratabname, 'class' => 'extratab section', 'style' => 'display: none;'));
 
                 // show the extratab title
@@ -758,19 +736,17 @@ and a.course = $COURSE->id
         return $o;
     }
 
-    // Render section for assessment information
-    public function render_assessment_section1($format_options) {
+    /**
+     * Render section for assessment information
+     *
+     * @param array|stdClass $formatoptions
+     * @return string
+     */
+    public function render_assessment_section($formatoptions) {
         $o = '';
-        $content = html_writer::div($format_options['content_assessmentinformation']);
-        $o .= html_writer::tag('div', $content, array('id' => 'assessment_information_area', 'style' => 'display: none;'));
-        return $o;
-    }
-
-    public function render_assessment_section($format_options) {
-        $o = '';
-        if (isset($format_options['enable_assessmentinformation']) && $format_options['enable_assessmentinformation']) {
+        if (isset($formatoptions['enable_assessmentinformation']) && $formatoptions['enable_assessmentinformation']) {
             // If the option to merge assessment information add a specific class as indicator for JS
-            if (isset($format_options['assessment_info_block_tab']) && $format_options['assessment_info_block_tab'] == '2') {
+            if (isset($formatoptions['assessment_info_block_tab']) && $formatoptions['assessment_info_block_tab'] == '2') {
                 $o .= html_writer::start_tag('div', array('id' => 'content_assessmentinformation_area', 'section-id' => 'assessment_information', 'class' => 'section merge_assessment_info', 'style' => 'display: none;'));
             } else {
                 $o .= html_writer::start_tag('div', array('id' => 'content_assessmentinformation_area', 'section-id' => 'assessment_information', 'class' => 'section', 'style' => 'display: none;'));
@@ -783,7 +759,7 @@ and a.course = $COURSE->id
             $o .= html_writer::end_tag('div');
         }
 
-//        $content = html_writer::div($format_options['content_assessmentinformation']);
+//        $content = html_writer::div($formatoptions['content_assessmentinformation']);
         // get any summary text from the hidden section that is automatically created by the Assessment Information tab
         $o .= $this->render_aitext();
 
@@ -794,7 +770,12 @@ and a.course = $COURSE->id
         return $o;
     }
 
-    // render any summary text from the hidden section that is automatically created by the Assessment Information tab
+    /**
+     * Render any summary text from the hidden section that is automatically created by the Assessment Information tab
+     *
+     * @return string
+     * @throws dml_exception
+     */
     public function render_aitext() {
         global $COURSE;
         $o = '';
@@ -829,6 +810,11 @@ and (sequence = '666' or sequence like '666,%' or sequence like '%,666,%' or seq
         return reset($result); // get the 1st element of the returned array - should have one element only anyway
     }
 
+    /**
+     * Start the section list
+     *
+     * @return string
+     */
     protected function start_section_list() {
         $o = '';
         $o .= html_writer::start_tag('div', array('id'=>'modulecontent', 'class'=>'tab-pane modulecontent active'));
@@ -836,6 +822,11 @@ and (sequence = '666' or sequence like '666,%' or sequence like '%,666,%' or seq
         return $o;
     }
 
+    /**
+     * End the section list
+     *
+     * @return string
+     */
     protected function end_section_list() {
         $o = '';
         $o .= html_writer::end_tag('ul');
