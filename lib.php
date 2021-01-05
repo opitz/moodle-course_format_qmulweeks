@@ -46,7 +46,6 @@ class format_qmulweeks extends format_weeks2 {
      * @return array array of references to the added form elements
      */
     public function create_edit_form_elements(&$mform, $forsection = false) : array {
-        global $CFG, $OUTPUT;
         $elements = parent::create_edit_form_elements($mform, $forsection);
         $elements = array_values($elements);
 
@@ -54,66 +53,59 @@ class format_qmulweeks extends format_weeks2 {
             $fo = $this->get_format_options();
             // Assessment Information
             if(isset($fo['enable_assessmentinformation']) && $fo['enable_assessmentinformation'] == "1") {
-                $elements[] = $mform->addElement('header', 'assessmentinformation', get_string('assessmentinformation', 'format_qmultc'));
-                $mform->addHelpButton('assessmentinformation', 'assessmentinformation', 'format_qmultc', '', true);
-                $elements[] = $mform->addElement('checkbox', 'enable_assessmentinformation', get_string('enabletab', 'format_qmultc'));
-                $elements[] = $mform->addElement('editor', 'content_assessmentinformation', get_string('assessmentinformation', 'format_qmultc'));
+                $elements[] = $mform->addElement('header', 'assessmentinformation',
+                    get_string('assessmentinformation', 'format_qmulweeks'));
+                $mform->addHelpButton('assessmentinformation', 'assessmentinformation',
+                    'format_qmulweeks', '', true);
+                $elements[] = $mform->addElement('checkbox', 'enable_assessmentinformation',
+                    get_string('enabletab', 'format_qmulweeks'));
+                $elements[] = $mform->addElement('editor', 'content_assessmentinformation',
+                    get_string('assessmentinformation', 'format_qmulweeks'));
             }
 
-            // Extra Tab 1
+            // Extra Tab 1.
             if(isset($fo['enable_extratab1']) && $fo['enable_extratab1'] == "1") {
-                $elements[] = $mform->addElement('header', 'extratab1', get_string('extratab', 'format_qmultc', 1));
-                $mform->addHelpButton('extratab1', 'extratab', 'format_qmultc', '', true);
-                $elements[] = $mform->addElement('checkbox', 'enable_extratab1', get_string('enabletab', 'format_qmultc'));
-                $elements[] = $mform->addElement('text', 'title_extratab1', get_string('tabtitle', 'format_qmultc'));
-                $elements[] = $mform->addElement('editor', 'content_extratab1', get_string('tabcontent', 'format_qmultc'));
+                $elements[] = $mform->addElement('header', 'extratab1',
+                    get_string('extratab', 'format_qmulweeks', 1));
+                $mform->addHelpButton('extratab1', 'extratab', 'format_qmulweeks',
+                    '', true);
+                $elements[] = $mform->addElement('checkbox', 'enable_extratab1',
+                    get_string('enabletab', 'format_qmulweeks'));
+                $elements[] = $mform->addElement('text', 'title_extratab1',
+                    get_string('tabtitle', 'format_qmulweeks'));
+                $elements[] = $mform->addElement('editor', 'content_extratab1',
+                    get_string('tabcontent', 'format_qmulweeks'));
             }
 
-            // Extra Tab 2
+            // Extra Tab 2.
             if(isset($fo['enable_extratab2']) && $fo['enable_extratab2'] == "1") {
-                $elements[] = $mform->addElement('header', 'extratab2', get_string('extratab', 'format_qmultc', 2));
-                $mform->addHelpButton('extratab2', 'extratab', 'format_qmultc', '', true);
-                $elements[] = $mform->addElement('checkbox', 'enable_extratab2', get_string('enabletab', 'format_qmultc'));
-                $elements[] = $mform->addElement('text', 'title_extratab2', get_string('tabtitle', 'format_qmultc'));
-                $elements[] = $mform->addElement('editor', 'content_extratab2', get_string('tabcontent', 'format_qmultc'));
+                $elements[] = $mform->addElement('header', 'extratab2',
+                    get_string('extratab', 'format_qmulweeks', 2));
+                $mform->addHelpButton('extratab2', 'extratab', 'format_qmulweeks',
+                    '', true);
+                $elements[] = $mform->addElement('checkbox', 'enable_extratab2',
+                    get_string('enabletab', 'format_qmulweeks'));
+                $elements[] = $mform->addElement('text', 'title_extratab2',
+                    get_string('tabtitle', 'format_qmulweeks'));
+                $elements[] = $mform->addElement('editor', 'content_extratab2',
+                    get_string('tabcontent', 'format_qmulweeks'));
             }
 
-            // Extra Tab 3
+            // Extra Tab 3.
             if(isset($fo['enable_extratab3']) && $fo['enable_extratab3'] == "1") {
-                $elements[] = $mform->addElement('header', 'extratab3', get_string('extratab', 'format_qmultc', 3));
-                $mform->addHelpButton('extratab3', 'extratab', 'format_qmultc', '', true);
-                $elements[] = $mform->addElement('checkbox', 'enable_extratab3', get_string('enabletab', 'format_qmultc'));
-                $elements[] = $mform->addElement('text', 'title_extratab3', get_string('tabtitle', 'format_qmultc'));
-                $elements[] = $mform->addElement('editor', 'content_extratab3', get_string('tabcontent', 'format_qmultc'));
+                $elements[] = $mform->addElement('header', 'extratab3',
+                    get_string('extratab', 'format_qmulweeks', 3));
+                $mform->addHelpButton('extratab3', 'extratab', 'format_qmulweeks',
+                    '', true);
+                $elements[] = $mform->addElement('checkbox', 'enable_extratab3',
+                    get_string('enabletab', 'format_qmulweeks'));
+                $elements[] = $mform->addElement('text', 'title_extratab3',
+                    get_string('tabtitle', 'format_qmulweeks'));
+                $elements[] = $mform->addElement('editor', 'content_extratab3',
+                    get_string('tabcontent', 'format_qmulweeks'));
             }
         }
         return $elements;
-    }
-
-    public function check_assessment_information($data) {
-        global $COURSE, $DB;
-        // If the Assessment Information option is UNset make sure the Assessment Information Block is removed from that course
-        if (! isset($data['enable_assessmentinformation']) || $data['enable_assessmentinformation'] == '0') {
-            // get the installed blocks and check if the assessment info block is one of them
-            $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$COURSE->id;
-            $installed_blocks = $DB->get_records_sql($sql, array());
-            $assessment_info_block_id = false;
-            foreach($installed_blocks as $installed_block) {
-                if($installed_block->blockname == 'assessment_information') {
-                    $assessment_info_block_id = (int)$installed_block->id;
-                    break;
-                }
-            }
-
-            // It is installed and will have to go
-            if($assessment_info_block_id) {
-                // get block context for the course - then delete the AI block with that context
-                $context = $DB->get_record('context', array('instanceid' => $COURSE->id, 'contextlevel' => '50'));
-                if (isset($context->id) && $context->id > 0) {
-                    $DB->delete_records('block_instances', array('blockname' => 'assessment_information', 'parentcontextid' => $context->id));
-                }
-            }
-        }
     }
 
     public function edit_form_validation($data, $files, $errors) : array {
@@ -141,9 +133,6 @@ class format_qmulweeks extends format_weeks2 {
         } else {
             $data['enabled_extratab1'] = 0;
         }
-
-        // Check the AI option and act accordingly
-//        $this->check_assessment_information($data);
 
         return $return;
     }
@@ -217,7 +206,7 @@ class format_qmulweeks extends format_weeks2 {
                     ), '', 'name,id,value');
 
         foreach ($savedata as $key => $value) {
-            // from 3.6 on HTML editor will return an array - if so just get the txt to store
+            // From 3.6 on HTML editor will return an array - if so just get the txt to store.
             if(gettype($value) == 'array' && isset($value['text'])){
                 $value = $value['text'];
             }
@@ -241,9 +230,7 @@ class format_qmulweeks extends format_weeks2 {
                 ));
             }
         }
-
         $changes = parent::update_course_format_options($data, $oldcourse);
-
         return $changes;
     }
 
@@ -265,19 +252,19 @@ class format_qmulweeks extends format_weeks2 {
         $options = parent::get_format_options($section);
 
         if ($section === null) {
-            // course format options will be returned
+            // Course format options will be returned.
             $sectionid = 0;
         } else if ($this->courseid && isset($section->id)) {
-            // course section format options will be returned
+            // Course section format options will be returned.
             $sectionid = $section->id;
         } else if ($this->courseid && is_int($section) &&
                 ($sectionobj = $DB->get_record('course_sections',
                         array('section' => $section, 'course' => $this->courseid), 'id'))) {
-            // course section format options will be returned
+            // Course section format options will be returned.
             $sectionid = $sectionobj->id;
         } else {
-            // non-existing (yet) section was passed as an argument
-            // default format options for course section will be returned
+            // Non-existing (yet) section was passed as an argument.
+            // Default format options for course section will be returned.
             $sectionid = -1;
         }
 
@@ -291,10 +278,8 @@ class format_qmulweeks extends format_weeks2 {
                     $options[$option->name] = $option->value;
                 }
             }
-
             $this->formatoptions[$sectionid] = $options;
         }
-
         return $options;
     }
 
@@ -329,7 +314,7 @@ class format_qmulweeks extends format_weeks2 {
                     'default' => 1,
                     'type' => PARAM_BOOL,
                 ),
-                // format options for the tab-ability
+                // Format options for the tab-ability.
                 'section0_ontop0' => array(
                     'default' => false,
                     'type' => PARAM_BOOL,
@@ -341,35 +326,39 @@ class format_qmulweeks extends format_weeks2 {
                     'default' => '0',
                     'type' => PARAM_BOOL,
                 ),
-/*
-                'assessment_info_block_tab' => array(
-                    'default' => get_config('format_qmultc', 'defaultshowassessmentinfotab'),
-                    'type' => PARAM_BOOL
-                ),
-*/
                 'assessment_info_block_tab' => array(
                     'default' => get_config('format_qmulweeks', 'defaultshowassessmentinfotab'),
                     'type' => PARAM_INT,
                 ),
             );
 
-            // the sequence in which the tabs will be displayed
-            $courseformatoptions['tab_seq'] = array('default' => '','type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+            // The sequence in which the tabs will be displayed.
+            $courseformatoptions['tab_seq'] = array('default' => '', 'type' => PARAM_TEXT, 'label' => '',
+                'element_type' => 'hidden',);
 
-            // now loop through the tabs but don't show them as we only need the DB records...
-            $courseformatoptions['tab0_title'] = array('default' => get_string('modulecontent', 'format_qmulgrid'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
-            $courseformatoptions['tab0'] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+            // Now loop through the tabs but don't show them as we only need the DB records.
+            $courseformatoptions['tab0_title'] = array('default' => get_string('modulecontent',
+                'format_qmulgrid'), 'type' => PARAM_TEXT, 'label' => '', 'element_type' => 'hidden',);
+            $courseformatoptions['tab0'] = array('default' => "", 'type' => PARAM_TEXT, 'label' => '',
+                'element_type' => 'hidden',);
             for ($i = 1; $i <= $max_tabs; $i++) {
-                $courseformatoptions['tab'.$i.'_title'] = array('default' => "Tab ".$i,'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
-                $courseformatoptions['tab'.$i] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
-                $courseformatoptions['tab'.$i.'_sectionnums'] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+                $courseformatoptions['tab'.$i.'_title'] = array('default' => "Tab ".$i, 'type' => PARAM_TEXT,
+                    'label' => '', 'element_type' => 'hidden',);
+                $courseformatoptions['tab'.$i] = array('default' => "", 'type' => PARAM_TEXT, 'label' => '',
+                    'element_type' => 'hidden',);
+                $courseformatoptions['tab'.$i.'_sectionnums'] = array('default' => "", 'type' => PARAM_TEXT,
+                    'label' => '', 'element_type' => 'hidden',);
             }
 
-            // Allow to store a name for the Assessment Info tab
-            $courseformatoptions['tab_assessment_information_title'] = array('default' => get_string('tab_assessment_information_title', 'format_qmulgrid'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+            // Allow to store a name for the Assessment Info tab.
+            $courseformatoptions['tab_assessment_information_title'] = array('default' =>
+                get_string('tab_assessment_information_title', 'format_qmulgrid'),
+                'type' => PARAM_TEXT, 'label' => '', 'element_type' => 'hidden',);
 
-            // Allow to store a name for the Assessment Info Block tab
-            $courseformatoptions['tab_assessment_info_block_title'] = array('default' => get_string('tab_assessment_info_block_title', 'format_qmulgrid'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+            // Allow to store a name for the Assessment Info Block tab.
+            $courseformatoptions['tab_assessment_info_block_title'] = array('default' =>
+                get_string('tab_assessment_info_block_title', 'format_qmulgrid'),
+                'type' => PARAM_TEXT, 'label' => '', 'element_type' => 'hidden',);
 
         }
         if ($foreditform && !isset($courseformatoptions['coursedisplay']['label'])) {
@@ -409,7 +398,8 @@ class format_qmulweeks extends format_weeks2 {
                     'element_attributes' => array(
                         array(
                             COURSE_DISPLAY_SINGLEPAGE => new lang_string('coursedisplay_single'),
-                            COURSE_DISPLAY_NOCOLLAPSE => get_string('coursedisplay_nocollapse', 'format_weeks2'),
+                            COURSE_DISPLAY_NOCOLLAPSE => get_string('coursedisplay_nocollapse',
+                                'format_weeks2'),
                             COURSE_DISPLAY_MULTIPAGE => new lang_string('coursedisplay_multi')
                         )
                     ),
@@ -441,7 +431,6 @@ class format_qmulweeks extends format_weeks2 {
                     'label' => get_string('assessment_info_block_tab_label', 'format_qmulweeks'),
                     'help' => 'assessment_info_block_tab',
                     'help_component' => 'format_qmulweeks',
-//                    'element_type' => 'select',
                     'element_type' => 'hidden',
                     'element_attributes' => array(
                         array(0 => get_string('assessment_info_block_tab_option0', 'format_qmulweeks'),
@@ -455,6 +444,16 @@ class format_qmulweeks extends format_weeks2 {
         return $courseformatoptions;
     }
 
+    /**
+     * The action from the section menu
+     *
+     * @param stdClass $section
+     * @param string $action
+     * @param int $sr
+     * @return array|mixed|stdClass|null
+     * @throws moodle_exception
+     * @throws required_capability_exception
+     */
     public function section_action($section, $action, $sr) {
         global $PAGE;
 
@@ -518,16 +517,23 @@ class format_qmulweeks extends format_weeks2 {
         return $rv;
     }
 
-// move section ID and section number to tab format settings of a given tab
+    /**
+     * move section ID and section number to tab format settings of a given tab
+     *
+     * @param int $tabnum
+     * @param stdClass $section2move
+     * @param array $settings
+     * @return array|mixed
+     */
     public function move2tab($tabnum, $section2move, $settings) {
         global $PAGE;
 
         $course = $PAGE->course;
 
-        // remove section number from all tab format settings
+        // Remove section number from all tab format settings.
         $settings = $this->removefromtabs($course, $section2move, $settings);
 
-        // add section number to new tab format settings if not tab0
+        // Add section number to new tab format settings if not tab0.
         if($tabnum > 0){
             $settings['tab'.$tabnum] .= ($settings['tab'.$tabnum] === '' ? '' : ',').$section2move->id;
             $settings['tab'.$tabnum.'_sectionnums'] .= ($settings['tab'.$tabnum.'_sectionnums'] === '' ? '' : ',').$section2move->section;
@@ -536,7 +542,14 @@ class format_qmulweeks extends format_weeks2 {
         return $settings;
     }
 
-// remove section id from all tab format settings
+    /**
+     * remove section id from all tab format settings
+     *
+     * @param stdClass $course
+     * @param stdClass $section2remove
+     * @param array $settings
+     * @return array|mixed
+     */
     public function removefromtabs($course, $section2remove, $settings) {
         global $CFG;
 
@@ -567,7 +580,13 @@ class format_qmulweeks extends format_weeks2 {
         return $settings;
     }
 
-// switch to show section0 always on top of the tabs
+    /**
+     * switch to show section0 always on top of the tabs
+     *
+     * @param array $settings
+     * @param string $value
+     * @return array|mixed
+     */
     public function sectionzeroswitch($settings, $value) {
         $settings['section0_ontop'] = $value;
         $this->update_course_format_options($settings);
@@ -593,24 +612,23 @@ function format_qmulweeks_inplace_editable($itemtype, $itemid, $newvalue) {
             array($itemid, 'qmulweeks'), MUST_EXIST);
         return course_get_format($section->course)->inplace_editable_update_section_name($section, $itemtype, $newvalue);
     }
-    // deal with inplace changes of a tab name
+    // Deal with inplace changes of a tab name.
     if ($itemtype === 'tabname') {
         global $DB, $PAGE;
         $courseid = key($_SESSION['USER']->currentcourseaccess);
-        // the $itemid is actually the name of the record so use it to get the id
+        // The $itemid is actually the name of the record so use it to get the id.
 
-        // update the database with the new value given
+        // Update the database with the new value given.
         // Must call validate_context for either system, or course or course module context.
         // This will both check access and set current context.
         \external_api::validate_context(context_system::instance());
         // Check permission of the user to update this item.
-//        require_capability('moodle/course:update', context_system::instance());
         // Clean input and update the record.
         $newvalue = clean_param($newvalue, PARAM_NOTAGS);
         $record = $DB->get_record('course_format_options', array('id' => $itemid), '*', MUST_EXIST);
         $DB->update_record('course_format_options', array('id' => $record->id, 'value' => $newvalue));
 
-        // Prepare the element for the output ():
+        // Prepare the element for the output.
         $output = new \core\output\inplace_editable('format_qmulweeks', 'tabname', $record->id,
             true,
             format_string($newvalue), $newvalue, 'Edit tab name',  'New value for ' . format_string($newvalue));

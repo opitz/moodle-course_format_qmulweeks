@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Collapsed Topics Information
  *
@@ -44,17 +43,17 @@ class restore_format_qmulweeks_plugin extends restore_format_plugin {
 
         $paths = array();
 
-        // Add own format stuff
+        // Add own format stuff.
         $elename = $this->get_namefor();
         $elepath = $this->get_pathfor('/newssettings');
         $paths[] = new restore_path_element($elename, $elepath);
 
-        return $paths; // And we return the interesting paths
+        return $paths; // And we return the interesting paths.
     }
 
     /**
-     * Process the 'plugin_format_qmulweeks_course' element within the 'course' element in the 'course.xml' file in the '/course' folder
-     * of the zipped backup 'mbz' file.
+     * Process the 'plugin_format_qmulweeks_course' element within the 'course' element in the 'course.xml' file
+     * in the '/course' folder of the zipped backup 'mbz' file.
      */
     public function process_format_qmulweeks($data) : void {
         global $DB;
@@ -62,8 +61,10 @@ class restore_format_qmulweeks_plugin extends restore_format_plugin {
         $data = (object)$data;
         $oldid = $data->id;
 
-        // We only process this information if the course we are restoring to
-        // has 'qmulweeks' format (target format can change depending of restore options)
+        /*
+        We only process this information if the course we are restoring to
+        has 'qmulweeks' format (target format can change depending of restore options).
+        */
         $format = $DB->get_field('course', 'format', array('id' => $this->task->get_courseid()));
         if ($format != 'qmulweeks') {
             return;
@@ -74,5 +75,7 @@ class restore_format_qmulweeks_plugin extends restore_format_plugin {
         $this->set_mapping($this->get_namefor('newssettings'), $oldid, $newitemid, true);
     }
 
-    protected function after_execute_structure() : void{ }
+    protected function after_execute_structure() : void{
+
+    }
 }

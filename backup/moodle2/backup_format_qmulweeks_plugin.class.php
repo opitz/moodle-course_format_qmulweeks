@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Collapsed Topics Information
  *
@@ -37,21 +36,24 @@ defined('MOODLE_INTERNAL') || die();
 class backup_format_qmulweeks_plugin extends backup_format_plugin {
     /**
      * Returns the format information to attach to course element
+     *
+     * @return backup_plugin_element
+     * @throws base_element_struct_exception
      */
-    protected function define_course_plugin_structure() : \backup_plugin_element{
+    protected function define_course_plugin_structure() : \backup_plugin_element {
 
-        // Define the virtual plugin element with the condition to fulfill
+        // Define the virtual plugin element with the condition to fulfill.
         $plugin = $this->get_plugin_element(null, '/course/format', 'qmulweeks');
 
-        // Create one standard named plugin element (the visible container)
+        // Create one standard named plugin element (the visible container).
         $pluginwrapper = new backup_nested_element($this->get_recommended_name());
         $plugindimension = new backup_nested_element('newssettings', array('id'), array('displaynews', 'usestatictext', 'statictext', 'statictextformat'));
 
-        // connect the visible container ASAP
+        // Connect the visible container ASAP.
         $plugin->add_child($pluginwrapper);
         $pluginwrapper->add_child($plugindimension);
 
-        // set source to populate the data
+        // Set source to populate the data.
         $plugindimension->set_source_table('format_qmultopics_news', array('courseid' => backup::VAR_PARENTID));
 
         return $plugin;

@@ -23,7 +23,6 @@
  * @since Moodle 2.3
  */
 
-
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/course/format/renderer.php');
 require_once($CFG->dirroot . '/course/format/qmulweeks/lib.php');
@@ -155,25 +154,6 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
      * @return array
      * @throws dml_exception
      */
-    public function get_group_assign_data0(){
-        global $COURSE, $DB;
-        $sql = "
-            SELECT 
-            gm.id as ID
-            ,asu.assignment
-            ,asu.groupid
-            ,ag.userid
-            ,ag.grade
-            FROM {assign_submission} asu
-            join {assign} a on a.id = asu.assignment
-            join {groups_members} gm on gm.groupid = asu.groupid
-            left join {assign_grades} ag on (ag.assignment = asu.assignment and ag.userid = gm.userid)
-            where asu.groupid > 0
-            and a.course = $COURSE->id
-        ";
-
-        return $DB->get_records_sql($sql);
-    }
     protected function get_group_assign_data() {
         global $COURSE, $DB;
         $sql = "
@@ -206,7 +186,7 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
      * @return string
      */
     public function output_news($course) {
-        global $CFG, $DB, $OUTPUT, $PAGE;
+        global $CFG, $DB;
 
         $streditsummary = get_string('editsummary');
         $context = context_course::instance($course->id);
@@ -214,18 +194,19 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
 
         require_once($CFG->dirroot.'/course/format/qmulweeks/locallib.php');
         $subcat = $DB->get_record('course_categories', array('id' => $course->category));
-        $o .= $OUTPUT->heading(format_string($subcat->name), 2, 'schoolname');
-        $o .= $OUTPUT->heading(format_string($course->fullname), 2, 'coursename');
+        $o .= $this->output->heading(format_string($subcat->name), 2, 'schoolname');
+        $o .= $this->output->heading(format_string($course->fullname), 2, 'coursename');
 
-        if ($PAGE->user_is_editing() && has_capability('moodle/course:update', $context)) {
-            $o .= '<p class="clearfix"><a title="' . get_string('editnewssettings', 'format_qmulweeks') . '" ' .
-                ' href="' . $CFG->wwwroot . '/course/format/qmulweeks/newssettings.php' . '?course=' . $course->id . '"><img src="' . $OUTPUT->pix_url('t/edit') . '" ' .
+        if ($this->page->user_is_editing() && has_capability('moodle/course:update', $context)) {
+            $o .= '<p class="clearfix"><a title="' . get_string('editnewssettings', 'format_qmulweeks') .
+                '" ' . ' href="' . $CFG->wwwroot . '/course/format/qmulweeks/newssettings.php' . '?course=' . $course->id .
+                '"><img src="' . $this->output->pix_url('t/edit') . '" ' .
                 ' class="iconsmall edit" alt="' . $streditsummary . '" /></a></p>';
         }
 
         if ($newssettings = $DB->get_record('format_qmulweeks_news', array('courseid' => $course->id))) {
             if ($newssettings->displaynews) {
-                if($newssettings->usestatictext) {
+                if ($newssettings->usestatictext) {
                     $newstext = $newssettings->statictext;
                 } else {
                     $newstext = format_qmulweeks_getnews($course);
@@ -234,7 +215,6 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
                 $o .= '<p class="clearfix" />';
             }
         }
-
         return $o;
     }
 
@@ -249,15 +229,14 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
      * @throws dml_exception
      */
     public function prepare_tabs($course, $formatoptions, $sections) {
-        // Get the standard tabs
+        // Get the standard tabs.
         $tabs = parent::prepare_tabs($course, $formatoptions, $sections);
 
-        // Merge old extratabs
+        // Merge old extratabs.
         $tabs = array_merge($tabs,$this->prepare_extratabs($course, $formatoptions));
 
-        // Merge tab(s) for assessment information (old and new)
+        // Merge tab(s) for assessment information (old and new).
         $tabs = array_merge($tabs, $this->prepare_assessment_tabs($course));
-//        $tabs = array_merge($tabs, $this->prepare_assessment_tab($course, $formatoptions));
 
         $this->tabs = $tabs;
         return $tabs;
@@ -301,22 +280,25 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
 
         $tabs = array();
 
-        // get the installed blocks and check if the assessment info block is one of them
+        // Get the installed blocks and check if the assessment info block is one of them.
         $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$course->id;
-        $installed_blocks = $DB->get_records_sql($sql, array());
-        $assessment_info_block_id = false;
-        foreach($installed_blocks as $installed_block) {
-            if($installed_block->blockname == 'assessment_information') {
-                $assessment_info_block_id = (int)$installed_block->id;
+        $installedblocks = $DB->get_records_sql($sql, array());
+        $assessmentinfoblockid = false;
+        foreach ($installedblocks as $installedblock) {
+            if ($installedblock->blockname == 'assessment_information') {
+                $assessmentinfoblockid = (int)$installedblock->id;
                 break;
             }
         }
-        // the assessment info block tab
-        if ($assessment_info_block_id) {
-            // make sure that "Assessment Info Block" title is replaced by the real one ("Assessment Information")
-            if(isset($this->tcsettings['tab_assessment_info_block_title']) && $this->tcsettings['tab_assessment_info_block_title'] == 'Assessment Info Block') {
-                $this->tcsettings['tab_assessment_info_block_title'] = get_string('tab_assessment_info_block_title', 'format_qmultopics');
-                $record = $DB->get_record('course_format_options', array('courseid' => $course->id, 'name' => 'tab_assessment_info_block_title'));
+        // The assessment info block tab.
+        if ($assessmentinfoblockid) {
+            // Make sure that "Assessment Info Block" title is replaced by the real one ("Assessment Information").
+            if (isset($this->tcsettings['tab_assessment_info_block_title']) &&
+                $this->tcsettings['tab_assessment_info_block_title'] == 'Assessment Info Block') {
+                $this->tcsettings['tab_assessment_info_block_title'] =
+                    get_string('tab_assessment_info_block_title', 'format_qmultopics');
+                $record = $DB->get_record('course_format_options', array('courseid' => $course->id,
+                    'name' => 'tab_assessment_info_block_title'));
                 $record->value = $this->tcsettings['tab_assessment_info_block_title'];
                 $DB->update_record('course_format_options', $record);
             }
@@ -326,18 +308,17 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
             $tab->name = 'assessment_info_block';
             $tab->title = $this->tcsettings['tab_assessment_info_block_title'];
             $tab->generic_title = get_string('tab_assessment_info_title', 'format_qmulweeks');
-            $tab->content = ''; // not required - we are only interested in the tab
+            $tab->content = ''; // Not required - we are only interested in the tab.
             $tab->sections = "block_assessment_information";
             $tab->section_nums = "";
             $tabs[$tab->id] = $tab;
-            // in case the assment info tab is not present but should be in the tab sequence when used fix this
-            if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
+            // In case the assment info tab is not present but should be in the tab sequence when used fix this.
+            if (strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
                 $this->tcsettings['tab_seq'] .= ','.$tab->id;
-//                $formatoptions['tab_seq'] .= ','.$tab->id;
             }
         }
 
-        // the old assessment info tab - as a new tab
+        // The old assessment info tab - as a new tab.
         if (isset($this->tcsettings['enable_assessmentinformation']) &&
             $this->tcsettings['enable_assessmentinformation'] == 1) {
             $tab = (object) new stdClass();
@@ -345,15 +326,14 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
             $tab->name = 'assessment_info';
             $tab->title = $this->tcsettings['tab_assessment_information_title'];
             $tab->generic_title = get_string('tab_assessment_information_title', 'format_qmulweeks');
-            // Get the synergy assessment info and store the result as content for this tab
+            // Get the synergy assessment info and store the result as content for this tab.
             $tab->content = $this->get_assessmentinformation($this->tcsettings['content_assessmentinformation']);
             $tab->sections = "assessment_information";
             $tab->section_nums = "";
             $tabs[$tab->id] = $tab;
-            // in case the assment info tab is not present but should be in the tab sequence when used fix this
-            if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
+            // In case the assment info tab is not present but should be in the tab sequence when used fix this.
+            if (strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
                 $this->tcsettings['tab_seq'] .= ','.$tab->id;
-//                $formatoptions['tab_seq'] .= ','.$tab->id;
             }
         }
 
@@ -368,23 +348,23 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
      */
     public function add_assessment_information_block($course) {
         global $DB;
-        // get block context for the course
+        // Get block context for the course.
         $context = $DB->get_record('context', array('instanceid' => $course->id, 'contextlevel' => '50'));
 
         // install the Assessment Information block
-        $ai_record = new stdClass();
-        $ai_record->blockname = 'assessment_information';
-        $ai_record->parentcontextid = $context->id;
-        $ai_record->showinsubcontexts = 0;
-        $ai_record->requiredbytheme = 0;
-        $ai_record->pagetypepattern = 'course-view-*';
-        $ai_record->defaultregion = 'side-pre';
-        $ai_record->defaultweight = -5;
-        $ai_record->configdata = '';
-        $ai_record->timecreated = time();
-        $ai_record->timemodified = time();
+        $airecord = new stdClass();
+        $airecord->blockname = 'assessment_information';
+        $airecord->parentcontextid = $context->id;
+        $airecord->showinsubcontexts = 0;
+        $airecord->requiredbytheme = 0;
+        $airecord->pagetypepattern = 'course-view-*';
+        $airecord->defaultregion = 'side-pre';
+        $airecord->defaultweight = -5;
+        $airecord->configdata = '';
+        $airecord->timecreated = time();
+        $airecord->timemodified = time();
 
-        return $DB->insert_record('block_instances', $ai_record);
+        return $DB->insert_record('block_instances', $airecord);
     }
 
     /**
@@ -397,15 +377,17 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
      * @throws moodle_exception
      */
     public function get_assessmentinformation($content) {
-        global $CFG, $DB, $COURSE, $OUTPUT, $USER;
+        global $CFG, $DB, $COURSE, $USER;
 
         $output = html_writer::tag('div', format_text($content), array('class'=>'assessmentinfo col-12 mb-3'));
 
         $assignments = $this->get_assignments();
 
-        $assignoutput = html_writer::tag('div', get_string('assignmentsdue', 'format_qmulweeks'), array('class'=>'card-header h5'));
+        $assignoutput = html_writer::tag('div', get_string('assignmentsdue', 'format_qmulweeks'),
+            array('class'=>'card-header h5'));
         $assignoutput .= html_writer::start_tag('div', array('class'=>'list-group list-group-flush'));
-        $assignsubmittedoutput = html_writer::tag('div', get_string('assignmentssubmitted', 'format_qmulweeks'), array('class'=>'card-header h5'));
+        $assignsubmittedoutput = html_writer::tag('div', get_string('assignmentssubmitted',
+            'format_qmulweeks'), array('class'=>'card-header h5'));
         $assignsubmittedoutput .= html_writer::start_tag('div', array('class'=>'list-group list-group-flush'));
 
         $modinfo = get_fast_modinfo($COURSE);
@@ -445,8 +427,7 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
                 continue;
             }
 
-            // Check overrides for new duedate
-
+            // Check overrides for new duedate.
             $sql = "SELECT
                     module.id,
                     module.allowsubmissionsfromdate AS timeopen,
@@ -456,7 +437,8 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
             $params = array();
             if ($groups[0]) {
                 list ($groupsql, $params) = $DB->get_in_or_equal($groups[0]);
-                $sql .= ", CASE WHEN ovrd1.allowsubmissionsfromdate IS NULL THEN MIN(ovrd2.allowsubmissionsfromdate) ELSE ovrd1.allowsubmissionsfromdate END AS timeopenover,
+                $sql .= ", CASE WHEN ovrd1.allowsubmissionsfromdate IS NULL THEN MIN(ovrd2.allowsubmissionsfromdate) 
+                    ELSE ovrd1.allowsubmissionsfromdate END AS timeopenover,
                     CASE WHEN ovrd1.duedate IS NULL THEN MAX(ovrd2.duedate) ELSE ovrd1.duedate END AS timecloseover
                     FROM {assign} module
                     LEFT JOIN {assign_overrides} ovrd1 ON module.id=ovrd1.assignid AND $USER->id=ovrd1.userid
@@ -506,7 +488,7 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
             $out .= html_writer::start_tag('div', array('class'=>'list-group-item assignment'.$hidden));
 
             $out .= html_writer::start_tag('div', array('class'=>'d-flex flex-wrap align-items-center mb-2'));
-            $out .= $OUTPUT->pix_icon('icon', 'assign', 'mod_assign', ['class'=>'mr-2']);
+            $out .= $this->output->pix_icon('icon', 'assign', 'mod_assign', ['class'=>'mr-2']);
             $out .= html_writer::link($url, $assignment->name, array('class'=>'name col p-0'));
 
             if ($assignment->duedate > 0) {
@@ -529,10 +511,12 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
             }
         }
         if ($submitted == 0) {
-            $assignsubmittedoutput .= html_writer::tag('div', get_string('noassignmentssubmitted', 'format_qmulweeks'), array('class'=>'card-body'));
+            $assignsubmittedoutput .= html_writer::tag('div', get_string('noassignmentssubmitted',
+                'format_qmulweeks'), array('class'=>'card-body'));
         }
         if ($due == 0) {
-            $assignoutput .= html_writer::tag('div', get_string('noassignmentsdue', 'format_qmulweeks'), array('class'=>'card-body'));
+            $assignoutput .= html_writer::tag('div', get_string('noassignmentsdue',
+                'format_qmulweeks'), array('class'=>'card-body'));
         }
         $assignoutput .= html_writer::end_tag('div');
         $assignsubmittedoutput .= html_writer::end_tag('div');
@@ -591,13 +575,13 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function render_tab($tab){
-        if(!isset($tab)) {
+    public function render_tab($tab) {
+        if (!isset($tab)) {
             return false;
         }
-        // as long as there are still old extratabs around we need to treat them slightly different from normal tabs
-        // this overriding function may be removed once extratabs are gone
-        if(strstr($tab->id, 'extratab')) {
+        // As long as there are still old extratabs around we need to treat them slightly different from normal tabs.
+        // Tthis overriding function may be removed once extratabs are gone.
+        if (strstr($tab->id, 'extratab')) {
             return $this->render_extratab($tab);
         } else {
             return parent::render_tab($tab);
@@ -613,27 +597,28 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
      * @throws dml_exception
      */
     public function render_extratab($tab) {
-        global $DB, $PAGE, $OUTPUT;
+        global $DB;
         $o = '';
-        if($tab->sections == '') {
+        if ($tab->sections == '') {
             $o .= html_writer::start_tag('li', array('class'=>'tabitem nav-item', 'style' => 'display:none;'));
         } else {
             $o .= html_writer::start_tag('li', array('class'=>'tabitem nav-item'));
         }
 
-        $sections_array = explode(',', str_replace(' ', '', $tab->sections));
-        if($sections_array[0]) {
-            while ($sections_array[0] == "0") { // remove any occurences of section-0
-                array_shift($sections_array);
+        $sectionsarray = explode(',', str_replace(' ', '', $tab->sections));
+        if ($sectionsarray[0]) {
+            while ($sectionsarray[0] == "0") { // Remove any occurences of section-0.
+                array_shift($sectionsarray);
             }
         }
 
-        if($PAGE->user_is_editing()) {
-            // get the format option record for the given tab - we need the id
-            // if the record does not exist, create it first
-            if(!$DB->record_exists('course_format_options', array('courseid' => $PAGE->course->id, 'name' => 'title_'.$tab->id))) {
+        if ($this->page->user_is_editing()) {
+            // Get the format option record for the given tab - we need the id.
+            // If the record does not exist, create it first.
+            if (!$DB->record_exists('course_format_options', array('courseid' => $this->page->course->id,
+                'name' => 'title_'.$tab->id))) {
                 $record = (object) new stdClass();
-                $record->courseid = $PAGE->course->id;
+                $record->courseid = $this->page->course->id;
                 $record->format = 'qmulweeks';
                 $record->section = 0;
                 $record->name = 'title_'.$tab->id;
@@ -641,36 +626,39 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
                 $DB->insert_record('course_format_options', $record);
             }
 
-            $format_option_tab = $DB->get_record('course_format_options', array('courseid' => $PAGE->course->id, 'name' => 'title_'.$tab->id));
-            $itemid = $format_option_tab->id;
+            $formatoptiontab = $DB->get_record('course_format_options', array('courseid' => $this->page->course->id,
+                'name' => 'title_'.$tab->id));
+            $itemid = $formatoptiontab->id;
         } else {
             $itemid = false;
         }
 
         if ($tab->id == 'tab0') {
-            $o .= '<span 
-                data-toggle="tab" id="'.$tab->id.'" 
-                sections="'.$tab->sections.'" 
-                section_nums="'.$tab->section_nums.'" 
-                class="tablink nav-link " 
-                tab_title="'.$tab->title.'", 
+            $o .= '<span
+                data-toggle="tab" id="'.$tab->id.'"
+                sections="'.$tab->sections.'"
+                section_nums="'.$tab->section_nums.'"
+                class="tablink nav-link "
+                tab_title="'.$tab->title.'",
                 generic_title = "'.$tab->generic_title.'"
                 >';
         } else {
-            $o .= '<span 
-                data-toggle="tab" id="'.$tab->id.'" 
-                sections="'.$tab->sections.'" 
-                section_nums="'.$tab->section_nums.'" 
-                class="tablink topictab nav-link " 
-                tab_title="'.$tab->title.'" 
-                generic_title = "'.$tab->generic_title.'" 
-                style="'.($PAGE->user_is_editing() ? 'cursor: move;' : '').'">';
+            $o .= '<span
+                data-toggle="tab" id="'.$tab->id.'"
+                sections="'.$tab->sections.'"
+                section_nums="'.$tab->section_nums.'"
+                class="tablink topictab nav-link "
+                tab_title="'.$tab->title.'"
+                generic_title = "'.$tab->generic_title.'"
+                style="'.($this->page->user_is_editing() ? 'cursor: move;' : '').'">';
         }
-        // render the tab name as inplace_editable
+        // Render the tab name as inplace_editable.
         $tmpl = new \core\output\inplace_editable('format_weeks2', 'tabname', $itemid,
-            $PAGE->user_is_editing(),
-            format_string($tab->title), $tab->title, get_string('tabtitle_edithint', 'format_weeks2'),  get_string('tabtitle_editlabel', 'format_weeks2', format_string($tab->title)));
-        $o .= $OUTPUT->render($tmpl);
+            $this->page->user_is_editing(),
+            format_string($tab->title), $tab->title, get_string('tabtitle_edithint',
+                'format_weeks2'),  get_string('tabtitle_editlabel', 'format_weeks2',
+                format_string($tab->title)));
+        $o .= $this->output->render($tmpl);
         $o .= "</span>";
         $o .= html_writer::end_tag('li');
         return $o;
@@ -687,12 +675,16 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
      * @return string
      * @throws dml_exception
      */
-    public function render_sections($course, $sections, $formatoptions, $modinfo, $numsections){
+    public function render_sections($course, $sections, $formatoptions, $modinfo, $numsections) {
         global $DB;
 
-        // First we check if the course used a legacy COLLAPSE course display - and if so set the coursedisplay option correctly if needed
+        /*
+        First we check if the course used a legacy COLLAPSE course display -
+        and if so set the coursedisplay option correctly if needed
+        */
         if ($formatoptions['coursedisplay'] == COURSE_DISPLAY_COLLAPSE) {
-            $cdrecord = $DB->get_record('course_format_options', array('courseid' => $course->id, 'name' => 'coursedisplay'));
+            $cdrecord = $DB->get_record('course_format_options', array('courseid' => $course->id,
+                'name' => 'coursedisplay'));
             $cdrecord->value = COURSE_DISPLAY_SINGLEPAGE;
             $DB->update_record('course_format_options', $cdrecord);
             $course->coursedisplay = COURSE_DISPLAY_SINGLEPAGE;
@@ -717,13 +709,14 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
         $o = '';
         foreach ($extratabnames as $extratabname) {
             if ($formatoptions['enable_'.$extratabname]) {
-                $o .= html_writer::start_tag('li', array('id' => $extratabname, 'section-id' => $extratabname, 'class' => 'extratab section', 'style' => 'display: none;'));
+                $o .= html_writer::start_tag('li', array('id' => $extratabname, 'section-id' => $extratabname,
+                    'class' => 'extratab section', 'style' => 'display: none;'));
 
-                // show the extratab title
+                // Show the extratab title.
                 $o .= html_writer::start_tag('h3', array('class' => 'sectionname'));
                 $o .= $this->tabs[$extratabname]->title;
                 $o .= html_writer::end_tag('h3');
-                // show the content
+                // Show the content.
                 $o .= html_writer::start_tag('div', array('class' => 'content'));
                 $o .= html_writer::start_tag('div', array('class' => 'summary'));
                 $o .= $this->tabs[$extratabname]->content;
@@ -745,11 +738,14 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
     public function render_assessment_section($formatoptions) {
         $o = '';
         if (isset($formatoptions['enable_assessmentinformation']) && $formatoptions['enable_assessmentinformation']) {
-            // If the option to merge assessment information add a specific class as indicator for JS
+            // If the option to merge assessment information add a specific class as indicator for JS.
             if (isset($formatoptions['assessment_info_block_tab']) && $formatoptions['assessment_info_block_tab'] == '2') {
-                $o .= html_writer::start_tag('div', array('id' => 'content_assessmentinformation_area', 'section-id' => 'assessment_information', 'class' => 'section merge_assessment_info', 'style' => 'display: none;'));
+                $o .= html_writer::start_tag('div', array('id' => 'content_assessmentinformation_area',
+                    'section-id' => 'assessment_information', 'class' => 'section merge_assessment_info',
+                    'style' => 'display: none;'));
             } else {
-                $o .= html_writer::start_tag('div', array('id' => 'content_assessmentinformation_area', 'section-id' => 'assessment_information', 'class' => 'section', 'style' => 'display: none;'));
+                $o .= html_writer::start_tag('div', array('id' => 'content_assessmentinformation_area',
+                    'section-id' => 'assessment_information', 'class' => 'section', 'style' => 'display: none;'));
             }
             $o .= html_writer::start_tag('div', array('class' => 'content'));
             $o .= html_writer::start_tag('div', array('class' => 'summary'));
@@ -759,11 +755,10 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
             $o .= html_writer::end_tag('div');
         }
 
-//        $content = html_writer::div($formatoptions['content_assessmentinformation']);
-        // get any summary text from the hidden section that is automatically created by the Assessment Information tab
+        // Get any summary text from the hidden section that is automatically created by the Assessment Information tab.
         $o .= $this->render_aitext();
 
-        // render an inititially invisible assessment_information_area
+        // Render an inititially invisible assessment_information_area.
         $content = '';
         $o .= html_writer::tag('div', $content, array('id' => 'assessment_information_area', 'style' => 'display: none;'));
 
@@ -779,7 +774,7 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
     public function render_aitext() {
         global $COURSE;
         $o = '';
-        if($airecord = $this->get_ai_section($COURSE) && isset($airecord->summary)) {
+        if ($airecord = $this->get_ai_section($COURSE) && isset($airecord->summary)) {
             $o .= html_writer::start_tag('div', array('id' => 'assessment_information_summary', 'style' => 'display: none;'));
             $o .= html_writer::div($airecord->summary);
             $o .= html_writer::empty_tag('br');
@@ -801,13 +796,13 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
     protected function get_ai_section($course) {
         global $DB;
         $sql = "
-select * 
-from {course_sections} 
-where course = $course->id 
-and (sequence = '666' or sequence like '666,%' or sequence like '%,666,%' or sequence like '%,666')
-";
+            select *
+            from {course_sections}
+            where course = $course->id
+            and (sequence = '666' or sequence like '666,%' or sequence like '%,666,%' or sequence like '%,666')
+        ";
         $result = $DB->get_records_sql($sql);
-        return reset($result); // get the 1st element of the returned array - should have one element only anyway
+        return reset($result); // Get the 1st element of the returned array - should have one element only anyway.
     }
 
     /**
@@ -817,7 +812,7 @@ and (sequence = '666' or sequence like '666,%' or sequence like '%,666,%' or seq
      */
     protected function start_section_list() {
         $o = '';
-        $o .= html_writer::start_tag('div', array('id'=>'modulecontent', 'class'=>'tab-pane modulecontent active'));
+        $o .= html_writer::start_tag('div', array('id' => 'modulecontent', 'class' => 'tab-pane modulecontent active'));
         $o .= html_writer::start_tag('ul', array('class' => 'topics weeks2 qmulweeks'));
         return $o;
     }

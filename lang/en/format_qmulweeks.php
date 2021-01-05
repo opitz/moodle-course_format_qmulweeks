@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -35,8 +34,7 @@ $string['hidefromothers'] = 'Hide week';
 $string['showfromothers'] = 'Show week';
 $string['addsections'] = 'Add Weeks';
 
-// QMUL Strings
-
+// QMUL Strings.
 $string['assessmentinformation'] = 'Assessment Information';
 $string['assessmentinformation_help'] = 'Add assessment information here';
 $string['assignmentsdue'] = 'Assignments Due';
@@ -51,7 +49,7 @@ $string['tabtitle'] = 'Tab Title';
 $string['tabcontent'] = 'Tab Content';
 $string['titlerequiredwhenenabled'] = 'Tab is required to have a title when enabled';
 
-// strings for tabs
+// Strings for tabs.
 $string['extratabname'] = 'All';
 $string['orphaned_tabname'] = 'Orphaned';
 $string['section0'] = 'First Topic';
@@ -102,35 +100,13 @@ $string['defaultshowassessmentinfotab_desc'] = 'When installed show the "Assessm
 
 $string['hidden_tab_hint'] = 'This tab contains only hidden sections and will not be shown to students';
 
-// News strings
+// News strings.
 $string['readfullpost'] = 'Read full post';
 $string['morenews'] = 'More news';
 
 $string['coursedisplay_collapse'] = 'Show collapsible sections on one page';
 
-// Badges
-$string['badge_due'] = 'Due ';
-$string['badge_wasdue'] = 'Was due ';
-$string['badge_spacer'] = '&nbsp;&nbsp;';
-$string['badge_commaspacer'] = ',&nbsp;&nbsp;';
-$string['badge_submitted'] = '  Submitted ';
-$string['badge_notsubmitted'] = 'Not submitted';
-$string['badge_answered'] = '  Answered ';
-$string['badge_notanswered'] = 'Not answered';
-$string['badge_attempted'] = '  Attempted ';
-$string['badge_notattempted'] = 'Not attempted';
-$string['badge_completed'] = '  Completed ';
-$string['badge_notcompleted'] = 'Not completed';
-$string['badge_groups'] = ' Groups';
-$string['badge_graded'] = ' Graded';
-$string['badge_ungraded'] = ' Ungraded';
-$string['badge_inprogress'] = 'In Progress ';
-$string['badge_xofy'] = ' of ';
-$string['badge_finished'] = ' Finished';
-$string['badge_feedback'] = ' - Feedback available!';
-
-
-// Badges
+// Badges.
 $string['badge_due'] = 'Due ';
 $string['badge_duetoday'] = 'DUE TODAY ';
 $string['badge_wasdue'] = 'Was due ';
