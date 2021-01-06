@@ -338,7 +338,7 @@ class format_qmulweeks extends format_weeks2 {
 
             // Now loop through the tabs but don't show them as we only need the DB records.
             $courseformatoptions['tab0_title'] = array('default' => get_string('modulecontent',
-                'format_qmulgrid'), 'type' => PARAM_TEXT, 'label' => '', 'element_type' => 'hidden');
+                'format_qmulweeks'), 'type' => PARAM_TEXT, 'label' => '', 'element_type' => 'hidden');
             $courseformatoptions['tab0'] = array('default' => "", 'type' => PARAM_TEXT, 'label' => '',
                 'element_type' => 'hidden');
             for ($i = 1; $i <= $maxtabs; $i++) {
@@ -352,12 +352,12 @@ class format_qmulweeks extends format_weeks2 {
 
             // Allow to store a name for the Assessment Info tab.
             $courseformatoptions['tab_assessment_information_title'] = array('default' =>
-                get_string('tab_assessment_information_title', 'format_qmulgrid'),
+                get_string('tab_assessment_information_title', 'format_qmulweeks'),
                 'type' => PARAM_TEXT, 'label' => '', 'element_type' => 'hidden');
 
             // Allow to store a name for the Assessment Info Block tab.
             $courseformatoptions['tab_assessment_info_block_title'] = array('default' =>
-                get_string('tab_assessment_info_block_title', 'format_qmulgrid'),
+                get_string('tab_assessment_info_block_title', 'format_qmulweeks'),
                 'type' => PARAM_TEXT, 'label' => '', 'element_type' => 'hidden');
 
         }
