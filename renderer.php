@@ -74,7 +74,94 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
      * @return array
      * @throws dml_exception
      */
-    public function get_module_data() {
+    protected function get_module_data() {
+        global $COURSE, $DB;
+        $sql = "
+            select
+            concat_ws('_', cm.id,a.id, asu.id, ag.id, c.id, ca.id, f.id, fc.id,
+                l.id,la.id,lg.id,q.id,qa.id,qg.id,gi.id,gg.id) as row_id
+            ,m.name as module_name
+            ,gi.hidden as gi_hidden
+            ,gi.locked as gi_locked
+            ,gg.hidden as gg_hidden
+            ,gg.locked as gg_locked
+            #,'assign >'
+            ,a.id as assign_id
+            ,a.name as assign
+            ,a.duedate as assign_duedate
+            ,a.teamsubmission
+            ,a.requireallteammemberssubmit
+            ,asu.userid as assign_userid
+            ,asu.status as assign_submission_status
+            ,asu.timemodified as assign_submit_time
+            ,ag.grade as assign_grade
+            ,ag.timemodified as assign_grade_time
+            #,'choice >'
+            ,c.id as choice_id
+            ,c.name as choice
+            ,c.timeopen as choice_timeopen
+            ,c.timeclose as choice_duedate
+            ,ca.userid as choice_userid
+            ,ca.timemodified as choice_submit_time
+            #,'feedback >'
+            ,f.id as feedback_id
+            ,f.name as feedback
+            ,f.timeopen as feedback_timeopen
+            ,f.timeclose as feedback_duedate
+            ,fc.userid as feedback_userid
+            ,fc.timemodified as feedback_submit_time
+            #,'lesson >'
+            ,l.id as lesson_id
+            ,l.name as lesson
+            ,l.deadline as lesson_duedate
+            ,la.userid as lesson_userid
+            ,la.correct
+            ,la.timeseen as lesson_submit_time
+            ,lg.grade as lesson_grade
+            ,lg.completed as lesson_completed
+            #,'quiz >'
+            ,q.id as quiz_id
+            ,q.name as quiz_name
+            ,q.timeopen as quiz_timeopen
+            ,q.timeclose as quiz_duedate
+            ,qa.userid as quiz_userid
+            ,qa.state as quiz_state
+            ,qa.timestart as quiz_timestart
+            ,qa.timefinish as quiz_submit_time
+            ,qg.grade as quiz_grade
+            from {course_modules} cm
+            join {modules} m on m.id = cm.module
+            # assign
+            left join {assign} a on a.id = cm.instance and a.course = cm.course and m.name = 'assign'
+            left join {assign_submission} asu on asu.assignment = a.id
+            left join {assign_grades} ag on ag.assignment = asu.assignment and ag.userid = asu.userid
+            # choice
+            left join {choice} c on c.id = cm.instance and c.course = cm.course and m.name = 'choice'
+            left join {choice_answers} ca on ca.choiceid = c.id
+            # feedback
+            left join {feedback} f on f.id = cm.instance and f.course = cm.course and m.name = 'feedback'
+            left join {feedback_completed} fc on fc.feedback = f.id
+            # lesson
+            left join {lesson} l on l.id = cm.instance and l.course = cm.course and m.name = 'lesson'
+            left join {lesson_attempts} la on la.lessonid = l.id
+            left join {lesson_grades} lg on lg.lessonid = la.lessonid and lg.userid = la.userid
+            # quiz
+            left join {quiz} q on q.id = cm.instance and q.course = cm.course and m.name = 'quiz'
+            left join {quiz_attempts} qa on qa.quiz = q.id
+            left join {quiz_grades} qg on qg.quiz = qa.quiz and qg.userid = qa.userid
+            # grading
+            left join {grade_items} gi on (gi.courseid = cm.course and gi.itemmodule = m.name and gi.iteminstance = cm.instance)
+            left join {grade_grades} gg on (gg.itemid = gi.id and gg.userid = asu.userid)
+            where 1
+            and cm.course = $COURSE->id
+            #and m.name = 'choice'
+            #order by m.name
+            #order by concat_ws('',cm.id,a.id, asu.id, ag.id, c.id, ca.id, f.id, fc.id, l.id,la.id,lg.id,q.id,qa.id,qg.id)
+            #limit 5000
+        ";
+        return $DB->get_records_sql($sql);
+    }
+    public function get_module_data0() {
         global $COURSE, $DB;
         $sql = "
             select concat_ws('', cm.id,a.id, asu.id, ag.id, c.id, ca.id, f.id, fc.id, l.id,la.id,lg.id,q.id,qa.id,qg.id) as row_id
@@ -159,6 +246,32 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
         global $COURSE, $DB;
         $sql = "
             select
+            concat_ws('_', g.id,gm.id, asu.id, ag.id, gi.id, gg.id) as row_id
+            ,g.id
+            ,gi.hidden as gi_hidden
+            ,gi.locked as gi_locked
+            ,gg.hidden as gg_hidden
+            ,gg.locked as gg_locked
+            ,gm.id as ID
+            ,gm.groupid
+            ,gm.userid
+            ,asu.assignment
+            ,ag.grade
+            from {groups} g
+            join {groups_members} gm on gm.groupid = g.id
+            left join {assign_submission} asu on asu.groupid = g.id
+            left join {assign_grades} ag on (ag.assignment = asu.assignment and ag.userid = gm.userid)
+            # grading
+            left join {grade_items} gi on (gi.courseid = g.courseid
+                and gi.itemmodule = 'assign' and gi.iteminstance = asu.assignment)
+            left join {grade_grades} gg on (gg.itemid = gi.id and gg.userid = asu.userid)
+            where g.courseid = $COURSE->id and asu.userid = 0";
+        return $DB->get_records_sql($sql);
+    }
+    protected function get_group_assign_data0() {
+        global $COURSE, $DB;
+        $sql = "
+            select
              g.id
             , gm.id as ID
             , gm.groupid
@@ -179,44 +292,6 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
     public function require_js() {
         $this->page->requires->js_call_amd('format_qmulweeks/tabs', 'init', array());
         $this->page->requires->js_call_amd('format_weeks2/toggle', 'init', array());
-    }
-
-    /**
-     * SYNERGY LEARNING - output news section
-     * @param object $course
-     * @return string
-     */
-    public function output_news($course) {
-        global $CFG, $DB;
-
-        $streditsummary = get_string('editsummary');
-        $context = context_course::instance($course->id);
-        $o = '';
-
-        require_once($CFG->dirroot.'/course/format/qmulweeks/locallib.php');
-        $subcat = $DB->get_record('course_categories', array('id' => $course->category));
-        $o .= $this->output->heading(format_string($subcat->name), 2, 'schoolname');
-        $o .= $this->output->heading(format_string($course->fullname), 2, 'coursename');
-
-        if ($this->page->user_is_editing() && has_capability('moodle/course:update', $context)) {
-            $o .= '<p class="clearfix"><a title="' . get_string('editnewssettings', 'format_qmulweeks') .
-                '" ' . ' href="' . $CFG->wwwroot . '/course/format/qmulweeks/newssettings.php' . '?course=' . $course->id .
-                '"><img src="' . $this->output->pix_url('t/edit') . '" ' .
-                ' class="iconsmall edit" alt="' . $streditsummary . '" /></a></p>';
-        }
-
-        if ($newssettings = $DB->get_record('format_qmulweeks_news', array('courseid' => $course->id))) {
-            if ($newssettings->displaynews) {
-                if ($newssettings->usestatictext) {
-                    $newstext = $newssettings->statictext;
-                } else {
-                    $newstext = format_qmulweeks_getnews($course);
-                }
-                $o .= '<div class="static-text"><div class="static-padding">'.$newstext.'</div></div>';
-                $o .= '<p class="clearfix" />';
-            }
-        }
-        return $o;
     }
 
     /**
@@ -341,33 +416,6 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
         }
 
         return $tabs;
-    }
-
-    /**
-     * check and add the assessment information
-     * @param array|stdClass $course
-     * @return bool|int
-     * @throws dml_exception
-     */
-    public function add_assessment_information_block($course) {
-        global $DB;
-        // Get block context for the course.
-        $context = $DB->get_record('context', array('instanceid' => $course->id, 'contextlevel' => '50'));
-
-        // Install the Assessment Information block.
-        $airecord = new stdClass();
-        $airecord->blockname = 'assessment_information';
-        $airecord->parentcontextid = $context->id;
-        $airecord->showinsubcontexts = 0;
-        $airecord->requiredbytheme = 0;
-        $airecord->pagetypepattern = 'course-view-*';
-        $airecord->defaultregion = 'side-pre';
-        $airecord->defaultweight = -5;
-        $airecord->configdata = '';
-        $airecord->timecreated = time();
-        $airecord->timemodified = time();
-
-        return $DB->insert_record('block_instances', $airecord);
     }
 
     /**
