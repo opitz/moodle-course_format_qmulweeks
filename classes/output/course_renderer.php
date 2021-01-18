@@ -927,6 +927,7 @@ class qmulweeks_course_renderer extends \core_course_renderer{
         global $COURSE;
 
         // Show attempts by enrolled students.
+        $badgetext = '';
         $badgeclass = '';
         $capability = 'quiz';
         $pretext = '';
