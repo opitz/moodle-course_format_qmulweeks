@@ -28,4 +28,4 @@ Feature: The Assessment Information block will be shown as a tab
     When I add the "Assessment Information" block
     Then I should see "Assessment Information"
     And I click on weekly element "#tab_assessment_info_block"
-    Then the assignment information area should be visible
+    Then the assignment information area should be visible in qmulweeks course format

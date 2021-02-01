@@ -44,7 +44,7 @@ class behat_format_qmulweeks extends behat_base {
     /**
      * Checking if the Assessment Information area is visible.
      *
-     * @Given /^the assignment information area should be visible$/
+     * @Given /^the assignment information area should be visible in qmulweeks course format$/
      * @throws ElementNotFoundException
      */
     public function the_assignment_information_area_should_be_visible_in_qmulweeks_format() {
