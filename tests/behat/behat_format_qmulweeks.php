@@ -41,32 +41,13 @@ require_once(__DIR__ . '/../../../../../course/tests/behat/behat_course.php');
  */
 class behat_format_qmulweeks extends behat_base {
 
-
-    /**
-     * Click in the given DOM element
-     *
-     * @Given /^I clicko on element "([^"]*)"$/
-     * @param string $selector
-     * @throws Exception
-     */
-    public function i_clicko_on_element($selector) {
-        $page = $this->getSession()->getPage();
-        $element = $page->find('css', $selector);
-
-        if (empty($element)) {
-            throw new Exception("No html element found for the selector ('$selector')");
-        }
-
-        $element->click();
-    }
-
     /**
      * Checking if the Assessment Information area is visible.
      *
      * @Given /^the assignment information area should be visible$/
      * @throws ElementNotFoundException
      */
-    public function the_assignment_information_area_should_be_visible() {
+    public function the_assignment_information_area_should_be_visible_in_qmulweeks_format() {
         $sectionxpath = "//div[@id='assessment_information_area']";
         $xpath = "//div[@id='assessment_information_area'][not(contains(@class, 'hidden'))]";
 
