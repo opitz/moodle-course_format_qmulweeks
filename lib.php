@@ -404,6 +404,18 @@ class format_qmulweeks extends format_weeks2 {
                     'help' => 'coursedisplay',
                     'help_component' => 'moodle',
                 ),
+                'defaultcollapse' => array(
+                    'label' => get_string('defaultcollapse', 'format_qmulweeks'),
+                    'element_type' => 'select',
+                    'element_attributes' => array(
+                        array(
+                            0 => get_string('defaultcollapsed', 'format_qmulweeks'),
+                            1 => get_string('defaultexpanded', 'format_qmulweeks')
+                        )
+                    ),
+                    'help' => 'defaultcollapse',
+                    'help_component' => 'format_qmulweeks',
+                ),
                 'automaticenddate' => array(
                     'label' => new lang_string('automaticenddate', 'format_weeks'),
                     'help' => 'automaticenddate',

@@ -880,5 +880,103 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
         return $o;
     }
 
+    /**
+     * Section title - either with toggle or straight.
+     *
+     * @param stdClass $section
+     * @param stdClass $course
+     * @return string
+     * @throws coding_exception
+     */
+    public function section_title($section, $course) {
+        if ($course->coursedisplay == COURSE_DISPLAY_SINGLEPAGE) {
+            // Prepare the toggle.
+            if (isset($this->toggle_seq)) {
+                $toggleseq = (array) json_decode($this->toggle_seq);
+            } else {
+                $toggleseq = [];
+            }
+
+            // Weird rearranging the array due to error with PHP below version 7.2.
+            // NO idea why this is needed - but it works.
+            if (version_compare(PHP_VERSION, '7.2.0') < 0) {
+                $toggleseq2 = array();
+                foreach ($toggleseq as $key => $value) {
+                    $toggleseq2[$key] = $value;
+                }
+                $toggleseq = $toggleseq2;
+            }
+
+            $tooltipopen = get_string('tooltip_open', 'format_weeks2');
+            $tooltipclosed = get_string('tooltip_closed', 'format_weeks2');
+
+            if (isset($toggleseq[$section->id]) && $toggleseq[$section->id] === '1' ||
+                (!count($toggleseq) && $course->defaultcollapse)
+            ) {
+                $toggler = '<i class="toggler toggler_open fa fa-angle-down" title="'.$tooltipopen
+                    .'" style="cursor: pointer;"></i>';
+                $toggler .= '<i class="toggler toggler_closed fa fa-angle-right" title="'
+                    .$tooltipclosed.'" style="cursor: pointer; display: none;"></i>';
+            } else {
+                $toggler = '<i class="toggler toggler_open fa fa-angle-down" title="'.$tooltipopen
+                    .'" style="cursor: pointer; display: none;"></i>';
+                $toggler .= '<i class="toggler toggler_closed fa fa-angle-right" title="'.$tooltipclosed
+                    .'" style="cursor: pointer;"></i>';
+            }
+
+            $toggler .= ' ';
+        } else {
+            $toggler = '';
+        }
+
+        return $toggler.$this->render(course_get_format($course)->inplace_editable_render_section_name($section));
+    }
+
+    /**
+     * Section body
+     *
+     * @param stdClass $section
+     * @param stdClass $course
+     * @return string
+     */
+    public function section_body($section, $course) {
+        $o = '';
+
+        if (isset($this->toggle_seq)) {
+            $toggleseq = (array) json_decode($this->toggle_seq);
+        } else {
+            $toggleseq = [];
+        }
+
+        // Weird rearranging the array due to error with PHP below version 7.2.
+        // NO idea why this is needed - but it works.
+        if (version_compare(PHP_VERSION, '7.2.0') < 0) {
+            $toggleseq2 = array();
+            foreach ($toggleseq as $key => $value) {
+                $toggleseq2[$key] = $value;
+            }
+            $toggleseq = $toggleseq2;
+        }
+
+        if ($course->coursedisplay == COURSE_DISPLAY_SINGLEPAGE &&
+            isset($toggleseq[$section->id]) &&
+            $toggleseq[$section->id] === '1' ||
+            ($section->section == 0 && $section->name == '') ||
+            (!count($toggleseq) && $course->defaultcollapse)
+        ) {
+            $o .= html_writer::start_tag('div', array('class' => 'sectionbody summary toggle_area showing'));
+        } else {
+            $o .= html_writer::start_tag('div',
+                array('class' => 'sectionbody summary toggle_area hidden', 'style' => 'display: none;'));
+        }
+        if ($section->uservisible || $section->visible) {
+            // Show summary if section is available or has availability restriction information.
+            // Do not show summary if section is hidden but we still display it because of course setting.
+            $o .= $this->format_summary_text($section);
+        }
+        return $o;
+
+    }
+
 }
 

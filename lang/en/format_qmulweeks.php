@@ -49,6 +49,12 @@ $string['tabtitle'] = 'Tab Title';
 $string['tabcontent'] = 'Tab Content';
 $string['titlerequiredwhenenabled'] = 'Tab is required to have a title when enabled';
 
+$string['defaultcollapse'] = 'Default collapse status';
+$string['defaultcollapsed'] = 'All topics are collapsed';
+$string['defaultexpanded'] = 'All topics are expanded';
+$string['defaultcollapse_help'] = 'By default all topics will be shown collapsed to users who have not yet made an own selection. You may select to show all topics expanded instead.';
+
+
 // Strings for tabs.
 $string['extratabname'] = 'All';
 $string['orphaned_tabname'] = 'Orphaned';
