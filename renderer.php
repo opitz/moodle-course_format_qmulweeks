@@ -911,7 +911,7 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
             $tooltipclosed = get_string('tooltip_closed', 'format_weeks2');
 
             if (isset($toggleseq[$section->id]) && $toggleseq[$section->id] === '1' ||
-                (!count($toggleseq) && $course->defaultcollapse)
+                (!count($toggleseq) && isset($course->defaultcollapse) && $course->defaultcollapse)
             ) {
                 $toggler = '<i class="toggler toggler_open fa fa-angle-down" title="'.$tooltipopen
                     .'" style="cursor: pointer;"></i>';
@@ -962,7 +962,7 @@ class format_qmulweeks_renderer extends format_weeks2_renderer {
             isset($toggleseq[$section->id]) &&
             $toggleseq[$section->id] === '1' ||
             ($section->section == 0 && $section->name == '') ||
-            (!count($toggleseq) && $course->defaultcollapse)
+            (!count($toggleseq) && isset($course->defaultcollapse) && $course->defaultcollapse)
         ) {
             $o .= html_writer::start_tag('div', array('class' => 'sectionbody summary toggle_area showing'));
         } else {
