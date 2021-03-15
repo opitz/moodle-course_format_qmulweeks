@@ -314,6 +314,19 @@ class format_qmulweeks extends format_weeks2 {
                     'default' => 1,
                     'type' => PARAM_BOOL,
                 ),
+                'defaultcollapse' => array(
+                    'label' => get_string('defaultcollapse', 'format_weeks2'),
+                    'element_type' => 'select',
+                    'element_attributes' => array(
+                        array(
+                            0 => get_string('defaultcollapsed', 'format_weeks2'),
+                            1 => get_string('defaultexpanded', 'format_weeks2'),
+                            2 => get_string('alwaysexpanded', 'format_weeks2')
+                        )
+                    ),
+                    'help' => 'defaultcollapse',
+                    'help_component' => 'format_qmultopics',
+                ),
                 // Format options for the tab-ability.
                 'section0_ontop0' => array(
                     'default' => false,
@@ -396,25 +409,11 @@ class format_qmulweeks extends format_weeks2 {
                     'element_attributes' => array(
                         array(
                             COURSE_DISPLAY_SINGLEPAGE => new lang_string('coursedisplay_single'),
-                            COURSE_DISPLAY_NOCOLLAPSE => get_string('coursedisplay_nocollapse',
-                                'format_weeks2'),
                             COURSE_DISPLAY_MULTIPAGE => new lang_string('coursedisplay_multi')
                         )
                     ),
                     'help' => 'coursedisplay',
                     'help_component' => 'moodle',
-                ),
-                'defaultcollapse' => array(
-                    'label' => get_string('defaultcollapse', 'format_qmulweeks'),
-                    'element_type' => 'select',
-                    'element_attributes' => array(
-                        array(
-                            0 => get_string('defaultcollapsed', 'format_qmulweeks'),
-                            1 => get_string('defaultexpanded', 'format_qmulweeks')
-                        )
-                    ),
-                    'help' => 'defaultcollapse',
-                    'help_component' => 'format_qmulweeks',
                 ),
                 'automaticenddate' => array(
                     'label' => new lang_string('automaticenddate', 'format_weeks'),
