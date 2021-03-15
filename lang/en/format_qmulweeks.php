@@ -130,3 +130,10 @@ $string['badge_feedback'] = ' - Feedback available!';
 $string['badge_submission_time_title'] = 'Submission time: ';
 $string['usethemebadges'] = 'Use assignment badges from QMUL theme';
 $string['usethemebadges_desc'] = 'Switch to either use assignment badges provided by the course format or by the theme (in case the new format badges are affecting performance too much)';
+
+// Toggle related
+$string['defaultcollapse'] = 'Default collapse status';
+$string['defaultcollapsed'] = 'All topics are collapsed';
+$string['defaultexpanded'] = 'All topics are expanded';
+$string['alwaysexpanded'] = 'All topics are always expanded (No collapse option)';
+$string['defaultcollapse_help'] = 'By default all topics will be shown collapsed to users who have not yet made an own selection. You may select to show all topics expanded instead.';
